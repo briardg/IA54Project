@@ -6,9 +6,10 @@ import org.janusproject.kernel.crio.core.GroupAddress;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
 
-import UTBM.IA54.capacity.ComputeEnergyTE;
-import UTBM.IA54.exchangeEnergy.ExchangeEnergyOrganization;
-import UTBM.IA54.exchangeEnergy.SendEnergyRole;
+import UTBM.IA54.capacity.ComputeEnergyTECapacityImpl;
+import UTBM.IA54.electricEnergyExchange.ElectricEnergyExchangeOrganization;
+import UTBM.IA54.electricEnergyExchange.ElectricEnergyProvider;
+import UTBM.IA54.energyManager.Car;
 
 public class ThermalEngineAgent extends Agent{
 
@@ -17,21 +18,23 @@ public class ThermalEngineAgent extends Agent{
 	 */
 	private static final long serialVersionUID = 8950364472045158287L;
 
-	public ThermalEngineAgent() {
+	private Car car;
 
+	public ThermalEngineAgent(Car c) {
+		this.car = c;
 	}
 	
 	@Override
 	public Status activate(Object... parameters) {
 		// Initialize Capacity
 		CapacityContainer cc = getCapacityContainer();
-		cc.addCapacity(new ComputeEnergyTE());
+		cc.addCapacity(new ComputeEnergyTECapacityImpl());
 		
 		
-		GroupAddress ga = createGroup(ExchangeEnergyOrganization.class);
+		GroupAddress ga = getOrCreateGroup(ElectricEnergyExchangeOrganization.class);
 	
 		if(ga != null) {
-			if(requestRole(SendEnergyRole.class, ga) == null) {
+			if(requestRole(ElectricEnergyProvider.class, ga) == null) {
 				return StatusFactory.cancel(this);
 			}
 		}
@@ -40,7 +43,10 @@ public class ThermalEngineAgent extends Agent{
 	
 	@Override
 	public Status live() {
-		// TODO Auto-generated method stub
 		return super.live();
+	}
+
+	public Car getCar() {
+		return car;
 	}
 }

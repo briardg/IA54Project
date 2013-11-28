@@ -3,7 +3,9 @@ package UTBM.IA54.capacity;
 import org.janusproject.kernel.crio.capacity.CapacityContext;
 import org.janusproject.kernel.crio.capacity.CapacityImplementation;
 
-public class ComputeEnergyTE extends CapacityImplementation implements ComputeEnergySent {
+public class ComputeEnergyTECapacityImpl 
+extends CapacityImplementation 
+implements ComputeElectricEnergyCapacity {
 
 	@Override
 	public void call(CapacityContext arg0) throws Exception {

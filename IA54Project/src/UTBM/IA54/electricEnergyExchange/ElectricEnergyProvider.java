@@ -1,15 +1,18 @@
-package UTBM.IA54.exchangeEnergy;
+package UTBM.IA54.electricEnergyExchange;
 
 import org.janusproject.kernel.crio.core.Role;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
+import org.janusproject.kernel.crio.core.HasAllRequiredCapacitiesCondition;
 
-public class SendEnergyRole extends Role {
+import UTBM.IA54.capacity.ComputeElectricEnergyCapacity;
+
+public class ElectricEnergyProvider extends Role {
 	
 	private State state = null;
 	
-	public SendEnergyRole() {
-
+	public ElectricEnergyProvider() {
+		addObtainCondition(new HasAllRequiredCapacitiesCondition(ComputeElectricEnergyCapacity.class));
 	}
 	
 	@Override

@@ -4,9 +4,11 @@ import org.janusproject.kernel.crio.capacity.CapacityContext;
 import org.janusproject.kernel.crio.capacity.CapacityImplementation;
 import org.janusproject.kernel.crio.capacity.CapacityImplementationType;
 
-public class ComputeEnergyBattery extends CapacityImplementation implements ComputeEnergySent {
+public class ComputeEnergyBatteryCapacityImpl 
+extends CapacityImplementation 
+implements ComputeElectricEnergyCapacity {
 	
-	public ComputeEnergyBattery() {
+	public ComputeEnergyBatteryCapacityImpl() {
 		super(CapacityImplementationType.DIRECT_ACTOMIC);
 	}
 	

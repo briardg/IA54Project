@@ -6,9 +6,10 @@ import org.janusproject.kernel.crio.core.GroupAddress;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
 
-import UTBM.IA54.capacity.ComputeEnergySREC;
-import UTBM.IA54.exchangeEnergy.ExchangeEnergyOrganization;
-import UTBM.IA54.exchangeEnergy.SendEnergyRole;
+import UTBM.IA54.capacity.ComputeEnergySRECCapacityImpl;
+import UTBM.IA54.electricEnergyExchange.ElectricEnergyExchangeOrganization;
+import UTBM.IA54.electricEnergyExchange.ElectricEnergyProvider;
+import UTBM.IA54.energyManager.Car;
 
 public class SRECAgent extends Agent {
 
@@ -17,24 +18,26 @@ public class SRECAgent extends Agent {
 	 */
 	private static final long serialVersionUID = -8046981036507670254L;
 
+	private Car car;
+
 	/**
 	 * 
 	 */
 	
-	public SRECAgent() {
-
+	public SRECAgent(Car c) {
+		this.car = c;
 	}
 	
 	@Override
 	public Status activate(Object... parameters) {
 		// Initialize Capacity
 		CapacityContainer cc = getCapacityContainer();
-		cc.addCapacity(new ComputeEnergySREC());
+		cc.addCapacity(new ComputeEnergySRECCapacityImpl());
 		
-		GroupAddress ga = createGroup(ExchangeEnergyOrganization.class);
+		GroupAddress ga = getOrCreateGroup(ElectricEnergyExchangeOrganization.class);
 	
 		if(ga != null) {
-			if(requestRole(SendEnergyRole.class, ga) == null) {
+			if(requestRole(ElectricEnergyProvider.class, ga) == null) {
 				return StatusFactory.cancel(this);
 			}
 		}
@@ -43,7 +46,10 @@ public class SRECAgent extends Agent {
 	
 	@Override
 	public Status live() {
-		// TODO Auto-generated method stub
 		return super.live();
+	}
+	
+	public Car getCar() {
+		return car;
 	}
 }

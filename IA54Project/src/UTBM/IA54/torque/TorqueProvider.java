@@ -1,15 +1,18 @@
-package UTBM.IA54.exchangeEnergy;
+package UTBM.IA54.torque;
 
+import org.janusproject.kernel.crio.core.HasAllRequiredCapacitiesCondition;
 import org.janusproject.kernel.crio.core.Role;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
 
-public class ProduceTorqueRole extends Role {
+import UTBM.IA54.capacity.ComputeTorqueCapacityImpl;
+
+public class TorqueProvider extends Role {
 	
 	private State state = null;
 
-	public ProduceTorqueRole() {
-
+	public TorqueProvider() {
+		addObtainCondition(new HasAllRequiredCapacitiesCondition(ComputeTorqueCapacityImpl.class));
 	}
 
 	@Override
@@ -34,7 +37,7 @@ public class ProduceTorqueRole extends Role {
 			return State.PRODUCE_TORQUE;
 			
 		case PRODUCE_TORQUE:
-			
+
 			return State.WAIT_ENERGY;
 		default:
 			return this.state;
