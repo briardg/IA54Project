@@ -5,14 +5,14 @@ import org.janusproject.kernel.crio.core.Role;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
 
-import UTBM.IA54.capacity.ComputeTorqueCapacityImpl;
+import UTBM.IA54.capacity.ComputeTorqueCapacity;
 
 public class TorqueProvider extends Role {
 	
 	private State state = null;
 
 	public TorqueProvider() {
-		addObtainCondition(new HasAllRequiredCapacitiesCondition(ComputeTorqueCapacityImpl.class));
+		addObtainCondition(new HasAllRequiredCapacitiesCondition(ComputeTorqueCapacity.class));
 	}
 
 	@Override
