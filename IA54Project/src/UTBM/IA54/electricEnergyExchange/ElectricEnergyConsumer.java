@@ -68,7 +68,7 @@ public class ElectricEnergyConsumer extends Role {
 			
 		case SEND_ENERGY_REQUEST:
 			// Send request to all electric energy providers
-			this.broadcastMessage(ElectricEnergyConsumer.class, new EnergyRequestMessage(new Request(this.getAddress(), this.energyNeeded)));
+			this.broadcastMessage(ElectricEnergyProvider.class, new EnergyRequestMessage(new Request(this.getAddress(), this.energyNeeded, 3)));
 			
 			return State.CHOOSING_PROPOSAL;
 			
@@ -79,7 +79,7 @@ public class ElectricEnergyConsumer extends Role {
 			for(Message m : this.getMessages(ProposalEnergyMessage.class)) {
 				proposals.add(((ProposalEnergyMessage)m).getProposal());
 			}
-			
+			// if proposal == null ?
 			try {
 				CapacityContext cc = this.executeCapacityCall(FindBestProposalCapacity.class, proposals.toArray());
 				

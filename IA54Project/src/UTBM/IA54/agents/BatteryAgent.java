@@ -95,7 +95,7 @@ public class BatteryAgent extends Agent{
 		@Override
 		public void call(CapacityContext arg0) throws Exception {
 			// TODO Auto-generated method stub
-			
+			BatteryAgent.this.getCar();
 		}
 	}
 	

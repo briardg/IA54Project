@@ -6,10 +6,12 @@ public class Proposal {
 	
 	private double electricEnergyProposal;
 	private RoleAddress provider;
+	private Request request;
 	
-	public Proposal(RoleAddress roleProvider, double energyProposal) {
+	public Proposal(RoleAddress roleProvider, double energyQuantity, Request req) {
 		this.provider = roleProvider;
-		this.electricEnergyProposal = energyProposal;
+		this.electricEnergyProposal = energyQuantity;
+		this.request = req;
 	}
 
 	public double getElectricEnergyProposal() {
@@ -18,6 +20,10 @@ public class Proposal {
 
 	public RoleAddress getProvider() {
 		return this.provider;
+	}
+	
+	public Request getRequest() {
+		return this.request;
 	}
 
 	@Override
@@ -50,7 +56,5 @@ public class Proposal {
 		} else if (!provider.equals(other.provider))
 			return false;
 		return true;
-	}
-	
-	
+	}	
 }

@@ -5,7 +5,7 @@ import org.janusproject.kernel.message.ObjectMessage;
 import UTBM.IA54.capacity.Request;
 
 public class EnergyRequestMessage extends ObjectMessage {
-
+	
 	/**
 	 * 
 	 */

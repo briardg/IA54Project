@@ -13,6 +13,6 @@ public class ProposalFinalized {
 	 * @return the proposal or null
 	 */
 	public Proposal getProposal() {
-		return proposal;
+		return this.proposal;
 	}
 }
