@@ -7,6 +7,7 @@ import org.janusproject.kernel.status.StatusFactory;
 
 import UTBM.IA54.capacity.ComputeTorqueCapacity;
 
+
 public class TorqueProvider extends Role {
 	
 	private State state = null;
@@ -17,7 +18,7 @@ public class TorqueProvider extends Role {
 
 	@Override
 	public Status activate(Object... params) {
-		this.state = State.WAIT_ENERGY;
+		this.state = State.PRODUCE_TORQUE;
 		
 		return StatusFactory.ok(this);
 	}
@@ -32,13 +33,14 @@ public class TorqueProvider extends Role {
 	
 	private State run() {
 		switch(this.state) {
-		case WAIT_ENERGY:
-			
-			return State.PRODUCE_TORQUE;
-			
 		case PRODUCE_TORQUE:
-
-			return State.WAIT_ENERGY;
+			try {
+				this.executeCapacityCall(ComputeTorqueCapacity.class);				
+			} catch (Throwable e) {
+				error(e.getLocalizedMessage());
+				return State.PRODUCE_TORQUE;
+			}
+			return State.PRODUCE_TORQUE;
 		default:
 			return this.state;
 		}

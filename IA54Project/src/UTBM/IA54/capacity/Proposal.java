@@ -8,10 +8,20 @@ public class Proposal {
 	private RoleAddress provider;
 	private Request request;
 	
+	public Proposal(double energyQuantity, Request req) {
+		this.provider = null;
+		this.electricEnergyProposal = energyQuantity;
+		this.request = req;
+	}
+	
 	public Proposal(RoleAddress roleProvider, double energyQuantity, Request req) {
 		this.provider = roleProvider;
 		this.electricEnergyProposal = energyQuantity;
 		this.request = req;
+	}
+	
+	public void setProvider(RoleAddress provider) {
+		this.provider = provider;
 	}
 
 	public double getElectricEnergyProposal() {

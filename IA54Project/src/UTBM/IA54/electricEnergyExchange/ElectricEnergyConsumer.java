@@ -1,6 +1,7 @@
 package UTBM.IA54.electricEnergyExchange;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.janusproject.kernel.crio.capacity.CapacityContext;
@@ -10,11 +11,12 @@ import org.janusproject.kernel.message.Message;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
 
-import UTBM.IA54.capacity.ComputeEnergyNeededCapacity;
+import UTBM.IA54.capacity.ComputeElectricEnergyNeededCapacity;
 import UTBM.IA54.capacity.FindBestProposalCapacity;
 import UTBM.IA54.capacity.Proposal;
 import UTBM.IA54.capacity.ProposalFinalized;
 import UTBM.IA54.capacity.Request;
+import UTBM.IA54.influence.ConsumeEnergyInfluence;
 import UTBM.IA54.message.EnergyRequestMessage;
 import UTBM.IA54.message.ProposalEnergyMessage;
 import UTBM.IA54.message.ProposalFinalizedEnergyMessage;
@@ -22,11 +24,13 @@ import UTBM.IA54.message.ProposalFinalizedEnergyMessage;
 public class ElectricEnergyConsumer extends Role {
 	
 	private State state = null;
-	private double energyNeeded; 
+	private int timeUnit;
+	private Request currentRequest;
 
 	public ElectricEnergyConsumer() {
-		this.addObtainCondition(new HasAllRequiredCapacitiesCondition(ComputeEnergyNeededCapacity.class));
-		this.addObtainCondition(new HasAllRequiredCapacitiesCondition(FindBestProposalCapacity.class));
+		this.addObtainCondition(new HasAllRequiredCapacitiesCondition(Arrays.asList(ComputeElectricEnergyNeededCapacity.class, FindBestProposalCapacity.class)));
+		this.timeUnit = 0;
+		this.currentRequest = null;
 	}
 
 	@Override
@@ -47,13 +51,15 @@ public class ElectricEnergyConsumer extends Role {
 	private State run() {
 		switch(this.state) {
 		case WAITING:
+			this.timeUnit = 0;
 			try {
-				CapacityContext cc = this.executeCapacityCall(ComputeEnergyNeededCapacity.class, (Object)null);
+				CapacityContext cc = this.executeCapacityCall(ComputeElectricEnergyNeededCapacity.class, (Object)null);
 								
 				if(cc.isResultAvailable()) {
-					this.energyNeeded = (double)cc.getOutputValueAt(0);
+					this.currentRequest = (Request)cc.getOutputValueAt(0);
 					
-					if(this.energyNeeded > 0.0) {
+					if(this.currentRequest != null) {
+						this.currentRequest.setConsumer(this.getAddress());
 						return State.SEND_ENERGY_REQUEST;
 					} else {
 						return State.WAITING;
@@ -68,39 +74,61 @@ public class ElectricEnergyConsumer extends Role {
 			
 		case SEND_ENERGY_REQUEST:
 			// Send request to all electric energy providers
-			this.broadcastMessage(ElectricEnergyProvider.class, new EnergyRequestMessage(new Request(this.getAddress(), this.energyNeeded, 3)));
+			this.broadcastMessage(ElectricEnergyProvider.class, new EnergyRequestMessage(this.currentRequest));
 			
 			return State.CHOOSING_PROPOSAL;
 			
 		case CHOOSING_PROPOSAL:
 			List<Proposal> proposals = new ArrayList<Proposal>();
+			List<Proposal> proposalsUpToDate = new ArrayList<Proposal>();
 			
 			// get messages from providers			
 			for(Message m : this.getMessages(ProposalEnergyMessage.class)) {
-				proposals.add(((ProposalEnergyMessage)m).getProposal());
-			}
-			// if proposal == null ?
-			try {
-				CapacityContext cc = this.executeCapacityCall(FindBestProposalCapacity.class, proposals.toArray());
-				
-				if(cc.isResultAvailable()) {
-					Proposal p = (Proposal)cc.getOutputValueAt(0);
+				Proposal p = ((ProposalEnergyMessage)m).getProposal();
+				proposals.add(p);
+				if(this.currentRequest.equals(p.getRequest())) {
+					// Put only proposals which response to the current request
+					proposalsUpToDate.add(p);
+				}
+			}			
+						
+			if(proposals.size() > 0) {
+				try {
+					CapacityContext cc = this.executeCapacityCall(FindBestProposalCapacity.class, proposalsUpToDate.toArray());
 					
-					// send answer to all providers
-					for(Proposal prop : proposals) {
-						if(p.getProvider().equals(prop.getProvider())) {
-							this.sendMessage(prop.getProvider(), new ProposalFinalizedEnergyMessage(new ProposalFinalized(prop)));
-						} else {
-							this.sendMessage(prop.getProvider(), new ProposalFinalizedEnergyMessage(new ProposalFinalized(null)));
+					if(cc.isResultAvailable()) {
+						Proposal p = (Proposal)cc.getOutputValueAt(0);
+						
+						// send answer to all providers
+						for(Proposal prop : proposals) {
+							if(p.getProvider().equals(prop.getProvider())) {
+								// positive answer
+								this.sendMessage(prop.getProvider(), new ProposalFinalizedEnergyMessage(new ProposalFinalized(prop)));
+							} else {
+								// negative answer
+								this.sendMessage(prop.getProvider(), new ProposalFinalizedEnergyMessage(new ProposalFinalized(null)));
+							}
 						}
 					}
-				}
-			} catch (Throwable e) {
-				error(e.getLocalizedMessage());
+				} catch (Throwable e) {
+					error(e.getLocalizedMessage());
+					return State.WAITING;
+				}	
+				// notice the agent that we have consumed some energy
+				this.fireSignal(new ConsumeEnergyInfluence(this, this.currentRequest));
+				
 				return State.WAITING;
-			}			
+			}
+
+			this.timeUnit++;
 			
-			return State.WAITING;
+			if(this.timeUnit > 10) {
+				// no answer to the request message => send new request
+				return State.WAITING;
+			}
+			// If no proposals messages in mailbox
+			return State.CHOOSING_PROPOSAL;
+			
 		default:
 			return this.state;
 		}
