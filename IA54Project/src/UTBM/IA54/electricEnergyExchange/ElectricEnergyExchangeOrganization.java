@@ -14,9 +14,11 @@ public class ElectricEnergyExchangeOrganization extends Organization {
 	 * 
 	 * @param crioContext
 	 */
-	protected ElectricEnergyExchangeOrganization(CRIOContext crioContext) {
-		super(crioContext);
+	public ElectricEnergyExchangeOrganization(CRIOContext crioContext) {
+		super(crioContext);		
 		addRole(ElectricEnergyProvider.class);
 		addRole(ElectricEnergyConsumer.class);
 	}
 }
+
+

@@ -20,6 +20,8 @@ implements FindBestRequestCapacity {
 		
 		// TODO behavior
 		call.setOutputValues(requests.get(0));
+		
+		System.out.println("\nFindBestRequestCapacityImpl, best request :"+requests.get(0));
 	}
 
 }

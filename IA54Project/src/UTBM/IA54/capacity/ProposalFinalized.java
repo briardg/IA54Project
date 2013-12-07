@@ -15,4 +15,9 @@ public class ProposalFinalized {
 	public Proposal getProposal() {
 		return this.proposal;
 	}
+
+	@Override
+	public String toString() {
+		return "ProposalFinalized [proposal=" + proposal + "]";
+	}
 }

@@ -35,6 +35,12 @@ public class Proposal {
 	public Request getRequest() {
 		return this.request;
 	}
+	
+	@Override
+	public String toString() {
+		return "Proposal [electricEnergyProposal=" + electricEnergyProposal
+				+ ", provider=" + provider + ", request=" + request + "]";
+	}
 
 	@Override
 	public int hashCode() {

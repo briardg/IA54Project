@@ -50,6 +50,13 @@ public class Request {
 		return priority;
 	}	
 	
+	@Override
+	public String toString() {
+		return "Request [electricEnergyRequest=" + electricEnergyRequest
+				+ ", consumer=" + consumer + ", date=" + date + ", priority="
+				+ priority + "]";
+	}
+
 	public enum Priority {
 		VERY_LOW,
 		LOW,

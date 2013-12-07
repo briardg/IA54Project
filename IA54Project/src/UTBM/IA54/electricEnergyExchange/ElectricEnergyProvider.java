@@ -12,7 +12,7 @@ import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
 import org.janusproject.kernel.crio.core.HasAllRequiredCapacitiesCondition;
 
-import UTBM.IA54.capacity.ComputeElectricEnergyProvidedCapacity;
+import UTBM.IA54.capacity.ComputeProposalCapacity;
 import UTBM.IA54.capacity.FindBestRequestCapacity;
 import UTBM.IA54.capacity.FindBestRequestCapacityImpl;
 import UTBM.IA54.capacity.Proposal;
@@ -25,38 +25,44 @@ import UTBM.IA54.message.ProposalFinalizedEnergyMessage;
 public class ElectricEnergyProvider extends Role {
 	
 	private State state = null;
+	private int counter = 0;
 	
 	public ElectricEnergyProvider() {
-		this.addObtainCondition(new HasAllRequiredCapacitiesCondition(Arrays.asList(ComputeElectricEnergyProvidedCapacity.class, FindBestRequestCapacity.class)));
+		this.addObtainCondition(new HasAllRequiredCapacitiesCondition(Arrays.asList(ComputeProposalCapacity.class, FindBestRequestCapacity.class)));
 	}
 	
 	@Override
 	public Status activate(Object... params) {
 		this.state = State.WAITING_REQUEST;
-		
-		return StatusFactory.ok(this);
-	}
 
+		return super.activate(params);
+	}
 
 	@Override
 	public Status live() {
-		this.state = this.run();
-		
+		if(this.counter < 10)
+			this.state = this.run();
+		this.counter++;
 		return StatusFactory.ok(this);
 	}
-	
+
 	private State run() {
 		switch(this.state) {
 		case WAITING_REQUEST:
+			System.out.println("provider state : waiting request");
+			
 			ArrayList<Request> requests = new ArrayList<Request>();
 			ArrayList<EnergyRequestMessage> messagesList = new ArrayList<EnergyRequestMessage>();
 			
 			// look at the mailbox
-			for(Message m : this.peekMessages(EnergyRequestMessage.class)) {
-				requests.add(((EnergyRequestMessage) m).getRequest());
-				messagesList.add((EnergyRequestMessage)m);
-				break;
+			for(Message m : this.peekMessages()) {
+				if(m instanceof EnergyRequestMessage) {
+					requests.add(((EnergyRequestMessage) m).getRequest());
+					messagesList.add((EnergyRequestMessage)m);
+				}
 			}
+			
+			System.out.println("provider request list received :"+requests);
 			
 			// if there is no energy request => WAITING_REQUEST state again
 			if(requests.size() == 0) {
@@ -64,22 +70,23 @@ public class ElectricEnergyProvider extends Role {
 			} else {
 				try {
 					// find the best request
-					CapacityContext cc1 = this.executeCapacityCall(FindBestRequestCapacityImpl.class, requests);
+					CapacityContext cc1 = this.executeCapacityCall(FindBestRequestCapacity.class, requests);
 					
 					if(cc1.isResultAvailable()) {
 						Request request = (Request)cc1.getOutputValueAt(0);
 					
 						if(request != null) {
 							// create a proposal
-							CapacityContext cc2 = this.executeCapacityCall(ComputeElectricEnergyProvidedCapacity.class, request);
+							CapacityContext cc2 = this.executeCapacityCall(ComputeProposalCapacity.class, request);
 							
 							if(cc2.isResultAvailable()) {
 								Proposal p = (Proposal)cc2.getOutputValueAt(0);
 								p.setProvider(this.getAddress());
-								
-								// Send proposal to consumer				
+								System.out.println(p);
+								// Send proposal to consumer	
+								System.out.println("provider : Send proposal to consumer");
 								this.sendMessage(request.getConsumer(), new ProposalEnergyMessage(p));
-								
+
 								// Remove request from the mailbox
 								this.getMailbox().remove(this.findRequestMessageFromListAccordingToARequest(messagesList, request));
 								
@@ -94,22 +101,30 @@ public class ElectricEnergyProvider extends Role {
 			}					
 			
 		case WAITING_ANSWER_PROPOSAL:
+			System.out.println("provider state : waiting answer proposal");
 			Proposal proposal = null;
 			
 			boolean proposalFinalizedConsumed = false;
 			
 			//look at the mail box - if no mail => waiting again else => look at the mail content
-			for(Message m : this.getMessages(ProposalFinalizedEnergyMessage.class)) {
-				proposal = ((ProposalFinalizedEnergyMessage) m).getProposalFinalized().getProposal();
-				// if proposal == null, the consume rejected the proposal
-				
-				if(proposal != null) {
-					// Consumer has accepted the proposal
+			for(Message m : this.getMessages()) {
+				if(m instanceof ProposalFinalizedEnergyMessage) {
+					proposal = ((ProposalFinalizedEnergyMessage) m).getProposalFinalized().getProposal();
+					// if proposal == null, the consume rejected the proposal
 					
-					// notice the agent that we have provided some energy to a consumer
-					this.fireSignal(new ConsumeEnergyInfluence(this, proposal.getRequest()));
+					if(proposal != null) {
+						System.out.println("provider : consumer accepted proposal");
+						// Consumer has accepted the proposal
+						
+						// notice the agent that we have provided some energy to a consumer
+						this.fireSignal(new ConsumeEnergyInfluence(this, proposal.getRequest()));
+						
+						System.out.println("provider fire signal");
+					} else {
+						System.out.println("provider : consumer rejected proposal");
+					}
+					proposalFinalizedConsumed = true;
 				}
-				proposalFinalizedConsumed = true;
 			}
 			
 			if(proposalFinalizedConsumed) {
@@ -133,16 +148,15 @@ public class ElectricEnergyProvider extends Role {
 	 */
 	private EnergyRequestMessage findRequestMessageFromListAccordingToARequest(ArrayList<EnergyRequestMessage> messagesList, Request request) {
 		EnergyRequestMessage requestMessage = null;
-		
+
 		for(EnergyRequestMessage m : messagesList) {
-			if(request.equals(((EnergyRequestMessage)m.getContent()).getRequest())) {
+			if(request.equals(((EnergyRequestMessage)m).getRequest())) {
 				requestMessage = m;
 				break;
 			}
 		}
 		
-		return requestMessage;
-		
+		return requestMessage;		
 	}
 
 	private enum State {

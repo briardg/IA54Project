@@ -12,7 +12,7 @@ import org.janusproject.kernel.crio.core.GroupAddress;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
 
-import UTBM.IA54.capacity.ComputeElectricEnergyProvidedCapacity;
+import UTBM.IA54.capacity.ComputeProposalCapacity;
 import UTBM.IA54.capacity.FindBestRequestCapacityImpl;
 import UTBM.IA54.capacity.Request;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyExchangeOrganization;
@@ -44,7 +44,7 @@ public class SRECAgent extends Agent {
 	public Status activate(Object... parameters) {		
 		// Initialize Capacity
 		CapacityContainer cc = getCapacityContainer();
-		cc.addCapacity(new ComputeEnergySRECCapacityImpl());
+		cc.addCapacity(new ComputeProposalSRECCapacityImpl());
 		cc.addCapacity(new FindBestRequestCapacityImpl());
 		
 		GroupAddress ga = getOrCreateGroup(ElectricEnergyExchangeOrganization.class);
@@ -75,12 +75,21 @@ public class SRECAgent extends Agent {
 	public Car getCar() {
 		return car;
 	}
-	
-	private class ComputeEnergySRECCapacityImpl 
-	extends CapacityImplementation 
-	implements ComputeElectricEnergyProvidedCapacity {
 		
-		public ComputeEnergySRECCapacityImpl() {
+	@Override
+	public String toString() {
+		return "SRECAgent [energyProvided=" + energyProvided
+				+ ", signalProviderListener=" + signalProviderListener + "]";
+	}
+
+	/****************************************************************/
+	/**************************** INNER CLASS ***********************/
+	/****************************************************************/
+	private class ComputeProposalSRECCapacityImpl 
+	extends CapacityImplementation 
+	implements ComputeProposalCapacity {
+		
+		public ComputeProposalSRECCapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}
 

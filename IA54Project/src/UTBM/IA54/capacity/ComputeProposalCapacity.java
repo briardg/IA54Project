@@ -3,6 +3,6 @@ package UTBM.IA54.capacity;
 import org.janusproject.kernel.crio.capacity.Capacity;
 
 
-public interface ComputeElectricEnergyProvidedCapacity extends Capacity {
+public interface ComputeProposalCapacity extends Capacity {
 
 }

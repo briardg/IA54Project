@@ -26,6 +26,7 @@ public class ElectricEnergyConsumer extends Role {
 	private State state = null;
 	private int timeUnit;
 	private Request currentRequest;
+	private int counter = 0;
 
 	public ElectricEnergyConsumer() {
 		this.addObtainCondition(new HasAllRequiredCapacitiesCondition(Arrays.asList(ComputeElectricEnergyNeededCapacity.class, FindBestProposalCapacity.class)));
@@ -36,21 +37,22 @@ public class ElectricEnergyConsumer extends Role {
 	@Override
 	public Status activate(Object... params) {
 		this.state = State.WAITING;
-		
-		return StatusFactory.ok(this);
-	}
 
+		return super.activate(params);
+	}
 
 	@Override
 	public Status live() {
-		this.state = this.run();
-		
+		if(this.counter < 10)
+			this.state = this.run();
+		this.counter++;
 		return StatusFactory.ok(this);
 	}
 	
 	private State run() {
 		switch(this.state) {
 		case WAITING:
+			System.out.println("consumer state : waiting");
 			this.timeUnit = 0;
 			try {
 				CapacityContext cc = this.executeCapacityCall(ComputeElectricEnergyNeededCapacity.class, (Object)null);
@@ -74,25 +76,30 @@ public class ElectricEnergyConsumer extends Role {
 			
 		case SEND_ENERGY_REQUEST:
 			// Send request to all electric energy providers
+			System.out.println("request sent");
 			this.broadcastMessage(ElectricEnergyProvider.class, new EnergyRequestMessage(this.currentRequest));
 			
-			return State.CHOOSING_PROPOSAL;
+			return State.WAITING_PROPOSAL;
 			
-		case CHOOSING_PROPOSAL:
+		case WAITING_PROPOSAL:
+			System.out.println("consumer state : waiting proposal");
 			List<Proposal> proposals = new ArrayList<Proposal>();
 			List<Proposal> proposalsUpToDate = new ArrayList<Proposal>();
 			
 			// get messages from providers			
-			for(Message m : this.getMessages(ProposalEnergyMessage.class)) {
-				Proposal p = ((ProposalEnergyMessage)m).getProposal();
-				proposals.add(p);
-				if(this.currentRequest.equals(p.getRequest())) {
-					// Put only proposals which response to the current request
-					proposalsUpToDate.add(p);
+			for(Message m : this.getMessages()) {
+				if(m instanceof ProposalEnergyMessage) {
+					Proposal p = ((ProposalEnergyMessage)m).getProposal();
+					proposals.add(p);
+					if(this.currentRequest.equals(p.getRequest())) {
+						// Put only proposals which response to the current request
+						proposalsUpToDate.add(p);
+					}
 				}
 			}			
 						
 			if(proposals.size() > 0) {
+				System.out.println("consumer is finding best proposal");
 				try {
 					CapacityContext cc = this.executeCapacityCall(FindBestProposalCapacity.class, proposalsUpToDate.toArray());
 					
@@ -116,7 +123,7 @@ public class ElectricEnergyConsumer extends Role {
 				}	
 				// notice the agent that we have consumed some energy
 				this.fireSignal(new ConsumeEnergyInfluence(this, this.currentRequest));
-				
+				System.out.println("consumer fire signal");
 				return State.WAITING;
 			}
 
@@ -127,7 +134,7 @@ public class ElectricEnergyConsumer extends Role {
 				return State.WAITING;
 			}
 			// If no proposals messages in mailbox
-			return State.CHOOSING_PROPOSAL;
+			return State.WAITING_PROPOSAL;
 			
 		default:
 			return this.state;
@@ -146,6 +153,6 @@ public class ElectricEnergyConsumer extends Role {
 		/**
 		 * Choose the best proposal from all the energy providers' answer
 		 */
-		CHOOSING_PROPOSAL;
+		WAITING_PROPOSAL;
 	}
 }

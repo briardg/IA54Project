@@ -62,6 +62,7 @@ public class PropulsionEngineAgent extends Agent {
 	
 	@Override
 	public Status activate(Object... parameters) {
+		System.out.println("initialize propulsion agent");
 		this.energyConsumed = 0.0;		
 		
 		// Initialize Capacity
@@ -70,13 +71,14 @@ public class PropulsionEngineAgent extends Agent {
 		cc.addCapacity(new ComputeEnergyNeededPECapacityImpl());
 		cc.addCapacity(new FindBestProposalPECapacityImpl());
 		// get group
-		GroupAddress ga = getOrCreateGroup(ElectricEnergyExchangeOrganization.class);
+
+		GroupAddress ga = this.getOrCreateGroup(ElectricEnergyExchangeOrganization.class);
 	
 		// add some roles
 		if(ga != null) {
-			if(requestRole(TorqueProvider.class, ga) == null) {
+			/*if(requestRole(TorqueProvider.class, ga) == null) {
 				return StatusFactory.cancel(this);
-			}
+			}*/
 			
 			if(requestRole(ElectricEnergyConsumer.class, ga) == null) {
 				return StatusFactory.cancel(this);
@@ -88,7 +90,7 @@ public class PropulsionEngineAgent extends Agent {
 		return StatusFactory.ok(this);
 	}
 	
-
+/*
 	@Override
 	public Status live() {
 		// Signal
@@ -98,10 +100,12 @@ public class PropulsionEngineAgent extends Agent {
 			// consume electric energy
 			ConsumeEnergyInfluence c = cIterator.next();
 			this.energyConsumed += c.getRequest().getElectricEnergyRequest();
+			System.out.println("signal catched : "+this);
 		}
 		
 		return StatusFactory.ok(this);
 	}
+	*/
 
 	/****************************/
 	/**** Getter, setter ********/
@@ -149,6 +153,13 @@ public class PropulsionEngineAgent extends Agent {
 	/*** End Getter, setter *****/
 	/****************************/
 	
+	@Override
+	public String toString() {
+		return "PropulsionEngineAgent [energyConsumed="
+				+ energyConsumed + ", torqueProvided=" + torqueProvided
+				+ ", signalConsumerListener=" + signalConsumerListener + "]";
+	}
+
 	/**
 	 * Inner class, defines a capacity finding the best proposal
 	 * according to a list
@@ -175,9 +186,15 @@ public class PropulsionEngineAgent extends Agent {
 			
 			if(best != null)
 				call.setOutputValues(best);
+			
+			System.out.println("FindBestProposalPECapacityImpl, best proposal :"+best);
 		}
 	}
 	
+
+	/****************************************************************/
+	/**************************** INNER CLASS ***********************/
+	/****************************************************************/
 	/**
 	 * Inner class, defines a capacity computing the electric energy needed 
 	 * by the agent
@@ -197,7 +214,9 @@ public class PropulsionEngineAgent extends Agent {
 			// TODO behavior
 			
 			// create a Request according to the needed of energy
-			call.setOutputValues(new Request(100, Request.Priority.MEDIUM));
+			Request request = new Request(100, Request.Priority.MEDIUM);
+			call.setOutputValues(request);
+			System.out.println("ComputeEnergyNeededPECapacityImpl : "+request);
 		}
 	}
 	
@@ -219,6 +238,8 @@ public class PropulsionEngineAgent extends Agent {
 			// TODO behavior
 			PropulsionEngineAgent.this.setTorqueProvided(PropulsionEngineAgent.this.getEnergyConsume()*0.5);
 			PropulsionEngineAgent.this.setEnergyConsume(0.0);
+			
+			System.out.println("ComputeTorqueCapacityImpl : "+PropulsionEngineAgent.this);
 		}
 	}
 }

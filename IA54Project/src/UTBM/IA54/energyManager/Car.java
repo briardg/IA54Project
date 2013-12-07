@@ -21,14 +21,15 @@ public class Car {
 		this.position = pos;
 		
 		this.battery = new BatteryAgent(this);
-		this.te = new ThermalEngineAgent(this);
-		this.srec = new SRECAgent(this);
+		this.battery.setEnergyStored(90);
+		//this.te = new ThermalEngineAgent(this);
+		//this.srec = new SRECAgent(this);
 		this.propulsion = new PropulsionEngineAgent(this);
 		
-		k.launchHeavyAgent(this.battery, Locale.getString(Car.class, "BATTERY", 1));
-		k.launchHeavyAgent(this.te, Locale.getString(Car.class, "THERMAL_ENGINE", 2));
-		k.launchHeavyAgent(this.srec, Locale.getString(Car.class, "SREV", 3));
-		k.launchHeavyAgent(this.propulsion, Locale.getString(Car.class, "PROPULSION_ENGINE", 4));
+		k.launchLightAgent(this.battery, "battery");
+		//k.launchHeavyAgent(this.te, "THERMAL_ENGINE");
+		//k.launchHeavyAgent(this.srec, "SREV");
+		k.launchLightAgent(this.propulsion, "PROPULSION_ENGINE");
 	}
 
 	public double getPosition() {

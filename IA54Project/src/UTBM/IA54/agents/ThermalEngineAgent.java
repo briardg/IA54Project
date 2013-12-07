@@ -12,7 +12,7 @@ import org.janusproject.kernel.crio.core.GroupAddress;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
 
-import UTBM.IA54.capacity.ComputeElectricEnergyProvidedCapacity;
+import UTBM.IA54.capacity.ComputeProposalCapacity;
 import UTBM.IA54.capacity.FindBestRequestCapacityImpl;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyExchangeOrganization;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyProvider;
@@ -48,13 +48,12 @@ public class ThermalEngineAgent extends Agent{
 		
 		return StatusFactory.ok(this);
 	}
-	
-	
+		
 	@Override
 	public Status activate(Object... parameters) {
 		// Initialize Capacity
 		CapacityContainer cc = getCapacityContainer();
-		cc.addCapacity(new ComputeEnergyTECapacityImpl());
+		cc.addCapacity(new ComputeProposalTECapacityImpl());
 		cc.addCapacity(new FindBestRequestCapacityImpl());
 		
 		
@@ -71,12 +70,19 @@ public class ThermalEngineAgent extends Agent{
 	public Car getCar() {
 		return car;
 	}
-	
-	private class ComputeEnergyTECapacityImpl 
-	extends CapacityImplementation 
-	implements ComputeElectricEnergyProvidedCapacity {
 		
-		public ComputeEnergyTECapacityImpl() {
+	@Override
+	public String toString() {
+		return "ThermalEngineAgent [energyProvided="
+				+ energyProvided + ", signalProviderListener="
+				+ signalProviderListener + "]";
+	}
+
+	private class ComputeProposalTECapacityImpl 
+	extends CapacityImplementation 
+	implements ComputeProposalCapacity {
+		
+		public ComputeProposalTECapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}
 
