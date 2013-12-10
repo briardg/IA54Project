@@ -1,9 +1,6 @@
 package UTBM.IA54.agents;
 
-import java.util.Iterator;
-
 import org.janusproject.kernel.agent.Agent;
-import org.janusproject.kernel.agentsignal.QueuedSignalAdapter;
 import org.janusproject.kernel.crio.capacity.CapacityContainer;
 import org.janusproject.kernel.crio.capacity.CapacityContext;
 import org.janusproject.kernel.crio.capacity.CapacityImplementation;
@@ -14,10 +11,12 @@ import org.janusproject.kernel.status.StatusFactory;
 
 import UTBM.IA54.capacity.ComputeProposalCapacity;
 import UTBM.IA54.capacity.FindBestRequestCapacityImpl;
+import UTBM.IA54.capacity.Proposal;
+import UTBM.IA54.capacity.Request;
+import UTBM.IA54.capacity.UpdateProviderAttrCapacity;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyExchangeOrganization;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyProvider;
 import UTBM.IA54.energyManager.Car;
-import UTBM.IA54.influence.ProvideEnergyInfluence;
 
 public class ThermalEngineAgent extends Agent{
 
@@ -28,25 +27,10 @@ public class ThermalEngineAgent extends Agent{
 
 	private Car car;
 	private double energyProvided;
-	private final QueuedSignalAdapter<ProvideEnergyInfluence> signalProviderListener = new QueuedSignalAdapter<ProvideEnergyInfluence>(ProvideEnergyInfluence.class);
 	
 	public ThermalEngineAgent(Car c) {
 		this.car = c;
 		this.energyProvided = 0.0;
-	}
-	
-	@Override
-	public Status live() {
-		Iterator<ProvideEnergyInfluence> pInfluence = this.signalProviderListener.iterator();
-		
-		while(pInfluence.hasNext()) {
-			ProvideEnergyInfluence p = pInfluence.next();
-			this.energyProvided -= p.getRequest().getElectricEnergyRequest();
-		}
-		// add signals listener
-		this.addSignalListener(this.signalProviderListener);
-		
-		return StatusFactory.ok(this);
 	}
 		
 	@Override
@@ -55,8 +39,8 @@ public class ThermalEngineAgent extends Agent{
 		CapacityContainer cc = getCapacityContainer();
 		cc.addCapacity(new ComputeProposalTECapacityImpl());
 		cc.addCapacity(new FindBestRequestCapacityImpl());
-		
-		
+		cc.addCapacity(new UpdateProviderAttrTECapacityImpl());
+				
 		GroupAddress ga = getOrCreateGroup(ElectricEnergyExchangeOrganization.class);
 	
 		if(ga != null) {
@@ -70,12 +54,19 @@ public class ThermalEngineAgent extends Agent{
 	public Car getCar() {
 		return car;
 	}
-		
+			
+	public double getEnergyProvided() {
+		return energyProvided;
+	}
+
+	public void setEnergyProvided(double energyProvided) {
+		this.energyProvided = energyProvided;
+	}
+
 	@Override
 	public String toString() {
 		return "ThermalEngineAgent [energyProvided="
-				+ energyProvided + ", signalProviderListener="
-				+ signalProviderListener + "]";
+				+ energyProvided + ", signalProviderListener=]";
 	}
 
 	private class ComputeProposalTECapacityImpl 
@@ -87,10 +78,30 @@ public class ThermalEngineAgent extends Agent{
 		}
 
 		@Override
-		public void call(CapacityContext arg0) throws Exception {
-			// TODO Auto-generated method stub
+		public void call(CapacityContext call) throws Exception {
+			Request request = (Request)call.getInputValues()[0];
+			// TODO behavior
 			
+			Proposal proposal = new Proposal(request.getElectricEnergyRequest(), request);
+			call.setOutputValues(proposal);
+			
+			System.out.print("ComputeProposalTECapacityImpl, "+ThermalEngineAgent.this.getName()+", proposal :");
+		}
+	}
+	
+	private class UpdateProviderAttrTECapacityImpl 
+	extends CapacityImplementation 
+	implements UpdateProviderAttrCapacity {
+		
+		public UpdateProviderAttrTECapacityImpl() {
+			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}
 
+		@Override
+		public void call(CapacityContext call) throws Exception {
+			Request r = (Request)call.getInputValues()[0];
+			ThermalEngineAgent.this.setEnergyProvided(ThermalEngineAgent.this.getEnergyProvided()-r.getElectricEnergyRequest());
+			System.out.println(ThermalEngineAgent.this.getName()+" : "+ThermalEngineAgent.this.getEnergyProvided());
+		}
 	}
 }

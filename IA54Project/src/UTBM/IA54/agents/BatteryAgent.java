@@ -1,10 +1,6 @@
 package UTBM.IA54.agents;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.janusproject.kernel.agent.Agent;
-import org.janusproject.kernel.agentsignal.QueuedSignalAdapter;
 import org.janusproject.kernel.crio.capacity.CapacityContainer;
 import org.janusproject.kernel.crio.capacity.CapacityContext;
 import org.janusproject.kernel.crio.capacity.CapacityImplementation;
@@ -14,18 +10,16 @@ import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
 
 import UTBM.IA54.capacity.ComputeProposalCapacity;
-import UTBM.IA54.capacity.ComputeElectricEnergyNeededCapacity;
+import UTBM.IA54.capacity.ComputeRequestCapacity;
 import UTBM.IA54.capacity.FindBestProposalCapacity;
-import UTBM.IA54.capacity.FindBestRequestCapacity;
 import UTBM.IA54.capacity.FindBestRequestCapacityImpl;
 import UTBM.IA54.capacity.Proposal;
 import UTBM.IA54.capacity.Request;
+import UTBM.IA54.capacity.UpdateProviderAttrCapacity;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyExchangeOrganization;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyConsumer;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyProvider;
 import UTBM.IA54.energyManager.Car;
-import UTBM.IA54.influence.ProvideEnergyInfluence;
-import UTBM.IA54.influence.ConsumeEnergyInfluence;
 
 /**
  * Define a battery Agent
@@ -40,15 +34,7 @@ public class BatteryAgent extends Agent{
 	/** 
 	 * Energy stored by the battery
 	 */
-	private long energyStored;
-	/**
-	 * Signal listener. Triggered when battery consume electric energy (when it gets energy from provider)
-	 */
-	private final QueuedSignalAdapter<ProvideEnergyInfluence> signalConsumerListener = new QueuedSignalAdapter<ProvideEnergyInfluence>(ProvideEnergyInfluence.class);
-	/**
-	 * Signal listener. Triggered when battery provide electric energy to a consumer (like propulsion engine or an other battery)
-	 */
-	private final QueuedSignalAdapter<ConsumeEnergyInfluence> signalProviderListener = new QueuedSignalAdapter<ConsumeEnergyInfluence>(ConsumeEnergyInfluence.class);
+	private double energyStored;
 	/**
 	 * the car where the battery is located
 	 */
@@ -61,15 +47,16 @@ public class BatteryAgent extends Agent{
 	
 	@Override
 	public Status activate(Object... parameters) {
-		System.out.println("initialize Battery agent");
+		System.out.println("initialize "+this.getName()+" agent");
 		// Initialize Capacity
 		CapacityContainer cc = getCapacityContainer();
 		cc.addCapacity(new ComputeProposalBatteryCapacityImpl());
-		cc.addCapacity(new ComputeEnergyNeededBatteryCapacityImpl());
+		cc.addCapacity(new ComputeRequestBatteryCapacityImpl());
 		cc.addCapacity(new FindBestProposalBatteryCapacityImpl());
 		cc.addCapacity(new FindBestRequestCapacityImpl());
-		// Get group
+		cc.addCapacity(new UpdateProviderAttrBatteryCapacityImpl());
 		
+		// Get group		
 		GroupAddress ga = getOrCreateGroup(ElectricEnergyExchangeOrganization.class);
 
 		// Add some roles to the group
@@ -80,46 +67,18 @@ public class BatteryAgent extends Agent{
 			}
 			
 			// Received energy 
-			//if(requestRole(ElectricEnergyConsumer.class, ga) == null) {
-		//		return StatusFactory.cancel(this);
-		//	}
+			if(requestRole(ElectricEnergyConsumer.class, ga) == null) {
+				return StatusFactory.cancel(this);
+			}
 		}
-		// add signals listener
-		this.addSignalListener(this.signalConsumerListener);
-		this.addSignalListener(this.signalProviderListener);
-
+		
 		return StatusFactory.ok(this);
 	}
 	
-/*
-	@Override
-	public Status live() {
-		// Signals
-		
-		Iterator<ProvideEnergyInfluence> cIterator = this.signalConsumerListener.iterator();
-		
-		while(cIterator.hasNext()) {
-			// Send energy
-			ProvideEnergyInfluence c = cIterator.next();
-			this.energyStored += c.getRequest().getElectricEnergyRequest();
-		}
-		
-		Iterator<ConsumeEnergyInfluence> pInfluence = this.signalProviderListener.iterator();
-		
-		while(pInfluence.hasNext()) {
-			// Stored energy
-			ConsumeEnergyInfluence p = pInfluence.next();
-			this.energyStored -= p.getRequest().getElectricEnergyRequest();
-			System.out.println("signal catched battery - :"+this);
-		}
-		
-		return StatusFactory.ok(this);
-	}*/
-
 	/**
 	 * @return the energyStored
 	 */
-	public long getEnergyStored() {
+	public synchronized double getEnergyStored() {
 		return this.energyStored;
 	}
 	
@@ -127,7 +86,7 @@ public class BatteryAgent extends Agent{
 	 * 
 	 * @param energyStored
 	 */
-	public void setEnergyStored(long energyStored) {
+	public synchronized void setEnergyStored(double energyStored) {
 		this.energyStored = energyStored;
 	}
 
@@ -142,8 +101,7 @@ public class BatteryAgent extends Agent{
 	@Override
 	public String toString() {
 		return "BatteryAgent [energyStored=" + energyStored
-				+ ", signalConsumerListener=" + signalConsumerListener
-				+ ", signalProviderListener=" + signalProviderListener
+				+ ", signalConsumerListener=" + ", signalProviderListener="
 				+ ", car=" + car + "]";
 	}
 	
@@ -168,11 +126,11 @@ public class BatteryAgent extends Agent{
 		public void call(CapacityContext call) throws Exception {
 			Request request = (Request)call.getInputValues()[0];
 			// TODO behavior
-
+			
 			Proposal proposal = new Proposal(request.getElectricEnergyRequest(), request);
 			call.setOutputValues(proposal);
 			
-			System.out.print("ComputeProposalBatteryCapacityImpl, proposal :");
+			System.out.print("ComputeProposalBatteryCapacityImpl, "+BatteryAgent.this.getName()+", proposal :");
 		}
 	}
 	
@@ -181,23 +139,23 @@ public class BatteryAgent extends Agent{
 	 * @author Anthony
 	 *
 	 */
-	private class ComputeEnergyNeededBatteryCapacityImpl
+	private class ComputeRequestBatteryCapacityImpl
 	extends CapacityImplementation
-	implements ComputeElectricEnergyNeededCapacity {
+	implements ComputeRequestCapacity {
 		
 		/**
 		 * Default constructor
 		 */
-		public ComputeEnergyNeededBatteryCapacityImpl() {
+		public ComputeRequestBatteryCapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			Request request = new Request(100, Request.Priority.MEDIUM);
+			Request request = new Request(10, Request.Priority.MEDIUM);
 			call.setOutputValues(request);
-			
-			System.out.println("ComputeEnergyNeededBatteryCapacityImpl, request:"+request);
+						
+			System.out.println("ComputeRequestBatteryCapacityImpl, "+BatteryAgent.this.getName()+", request:"+request);
 		}
 	}
 	
@@ -226,7 +184,25 @@ public class BatteryAgent extends Agent{
 			
 			if(best != null)
 				call.setOutputValues(best);
-			System.out.println("FindBestProposalBatteryCapacityImpl, best proposal:"+best);
+			BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored()+best.getElectricEnergyProposal());
+			System.out.println("FindBestProposalBatteryCapacityImpl, "+BatteryAgent.this.getName()+", best proposal:"+best);
+			System.out.println("agent "+BatteryAgent.this.getName()+" : "+BatteryAgent.this.getEnergyStored());
+		}
+	}
+
+	private class UpdateProviderAttrBatteryCapacityImpl 
+	extends CapacityImplementation 
+	implements UpdateProviderAttrCapacity {
+		
+		public UpdateProviderAttrBatteryCapacityImpl() {
+			super(CapacityImplementationType.DIRECT_ACTOMIC);
+		}
+
+		@Override
+		public void call(CapacityContext call) throws Exception {
+			Request r = (Request)call.getInputValues()[0];
+			BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored()-r.getElectricEnergyRequest());
+			System.out.println(BatteryAgent.this.getName()+" : "+BatteryAgent.this.getEnergyStored());
 		}
 	}
 }

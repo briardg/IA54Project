@@ -6,7 +6,6 @@ import java.util.Arrays;
 
 import org.janusproject.kernel.crio.capacity.CapacityContext;
 import org.janusproject.kernel.crio.core.Role;
-import org.janusproject.kernel.mailbox.Mailbox;
 import org.janusproject.kernel.message.Message;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
@@ -14,10 +13,9 @@ import org.janusproject.kernel.crio.core.HasAllRequiredCapacitiesCondition;
 
 import UTBM.IA54.capacity.ComputeProposalCapacity;
 import UTBM.IA54.capacity.FindBestRequestCapacity;
-import UTBM.IA54.capacity.FindBestRequestCapacityImpl;
 import UTBM.IA54.capacity.Proposal;
 import UTBM.IA54.capacity.Request;
-import UTBM.IA54.influence.ConsumeEnergyInfluence;
+import UTBM.IA54.capacity.UpdateProviderAttrCapacity;
 import UTBM.IA54.message.EnergyRequestMessage;
 import UTBM.IA54.message.ProposalEnergyMessage;
 import UTBM.IA54.message.ProposalFinalizedEnergyMessage;
@@ -26,9 +24,19 @@ public class ElectricEnergyProvider extends Role {
 	
 	private State state = null;
 	private int counter = 0;
+	private int unitTimeToWait;
 	
 	public ElectricEnergyProvider() {
-		this.addObtainCondition(new HasAllRequiredCapacitiesCondition(Arrays.asList(ComputeProposalCapacity.class, FindBestRequestCapacity.class)));
+		this.addObtainCondition(
+				new HasAllRequiredCapacitiesCondition(
+						Arrays.asList(
+								ComputeProposalCapacity.class, 
+								FindBestRequestCapacity.class, 
+								UpdateProviderAttrCapacity.class
+						)
+				)
+		);
+		this.unitTimeToWait = 0;
 	}
 	
 	@Override
@@ -40,7 +48,7 @@ public class ElectricEnergyProvider extends Role {
 
 	@Override
 	public Status live() {
-		if(this.counter < 10)
+		if(this.counter < 15)
 			this.state = this.run();
 		this.counter++;
 		return StatusFactory.ok(this);
@@ -49,59 +57,80 @@ public class ElectricEnergyProvider extends Role {
 	private State run() {
 		switch(this.state) {
 		case WAITING_REQUEST:
-			System.out.println("provider state : waiting request");
+			System.out.println(this.getPlayer().getName()+" : waiting request");
 			
-			ArrayList<Request> requests = new ArrayList<Request>();
-			ArrayList<EnergyRequestMessage> messagesList = new ArrayList<EnergyRequestMessage>();
-			
-			// look at the mailbox
-			for(Message m : this.peekMessages()) {
-				if(m instanceof EnergyRequestMessage) {
-					requests.add(((EnergyRequestMessage) m).getRequest());
-					messagesList.add((EnergyRequestMessage)m);
-				}
-			}
-			
-			System.out.println("provider request list received :"+requests);
-			
-			// if there is no energy request => WAITING_REQUEST state again
-			if(requests.size() == 0) {
-				return State.WAITING_REQUEST;
-			} else {
-				try {
-					// find the best request
-					CapacityContext cc1 = this.executeCapacityCall(FindBestRequestCapacity.class, requests);
-					
-					if(cc1.isResultAvailable()) {
-						Request request = (Request)cc1.getOutputValueAt(0);
-					
-						if(request != null) {
-							// create a proposal
-							CapacityContext cc2 = this.executeCapacityCall(ComputeProposalCapacity.class, request);
-							
-							if(cc2.isResultAvailable()) {
-								Proposal p = (Proposal)cc2.getOutputValueAt(0);
-								p.setProvider(this.getAddress());
-								System.out.println(p);
-								// Send proposal to consumer	
-								System.out.println("provider : Send proposal to consumer");
-								this.sendMessage(request.getConsumer(), new ProposalEnergyMessage(p));
-
-								// Remove request from the mailbox
-								this.getMailbox().remove(this.findRequestMessageFromListAccordingToARequest(messagesList, request));
-								
-								return State.WAITING_ANSWER_PROPOSAL;
-							}
+			// Wait 5 unit time to receive more requests
+			if(this.unitTimeToWait >= 3) {
+				this.unitTimeToWait = 0;
+				
+				ArrayList<Request> requests = new ArrayList<Request>();
+				ArrayList<EnergyRequestMessage> messagesList = new ArrayList<EnergyRequestMessage>();
+				ArrayList<Message> messageToRemove = new ArrayList<Message>();
+				
+				// look at the mailbox
+				for(Message m : this.peekMessages()) {
+					if(m instanceof EnergyRequestMessage) {
+						EnergyRequestMessage message = (EnergyRequestMessage)m;
+	
+						// Remove message send by this role itself (we can t treat a request sent by this role itself)
+						if(message.getRequest().getConsumer().getPlayer().getName() == this.getPlayer().getName()) {
+							messageToRemove.add(m);
+						} else {
+							requests.add(((EnergyRequestMessage) m).getRequest());
+							messagesList.add((EnergyRequestMessage)m);
 						}
-					}					
-				} catch (Throwable e) {
-					error(e.getLocalizedMessage());
-					return State.WAITING_REQUEST;
+					}
 				}
-			}					
+				
+				// Remove messages send by this role itself
+				for(Message m : messageToRemove) {
+					this.getMailbox().remove(m);				
+				}
+				
+				System.out.println(this.getPlayer().getName()+" request list received :"+requests);
+				
+				// if there is no energy request => WAITING_REQUEST state again
+				if(requests.size() == 0) {
+					return State.WAITING_REQUEST;
+				} else {
+					try {
+						// find the best request
+						CapacityContext cc1 = this.executeCapacityCall(FindBestRequestCapacity.class, requests);
+						
+						if(cc1.isResultAvailable()) {
+							Request request = (Request)cc1.getOutputValueAt(0);
+						
+							if(request != null) {
+								// create a proposal
+								CapacityContext cc2 = this.executeCapacityCall(ComputeProposalCapacity.class, request);
+								
+								if(cc2.isResultAvailable()) {
+									Proposal p = (Proposal)cc2.getOutputValueAt(0);
+									p.setProvider(this.getAddress());
+	
+									// Send proposal to consumer	
+									System.out.println(this.getPlayer().getName()+" provider : Send proposal to consumer"+p);
+									this.sendMessage(request.getConsumer(), new ProposalEnergyMessage(p));
+	
+									// Remove request from the mailbox
+									this.getMailbox().remove(this.findRequestMessageFromListAccordingToARequest(messagesList, request));
+									
+									return State.WAITING_ANSWER_PROPOSAL;
+								}
+							}
+						}					
+					} catch (Throwable e) {
+						error(e.getLocalizedMessage());
+						return State.WAITING_REQUEST;
+					}
+				}	
+			} else {
+				this.unitTimeToWait++;
+			}
+			return State.WAITING_REQUEST;
 			
 		case WAITING_ANSWER_PROPOSAL:
-			System.out.println("provider state : waiting answer proposal");
+			System.out.println(this.getPlayer().getName()+" : waiting answer proposal");
 			Proposal proposal = null;
 			
 			boolean proposalFinalizedConsumed = false;
@@ -113,15 +142,17 @@ public class ElectricEnergyProvider extends Role {
 					// if proposal == null, the consume rejected the proposal
 					
 					if(proposal != null) {
-						System.out.println("provider : consumer accepted proposal");
+						System.out.println(this.getPlayer().getName()+" : consumer accepted proposal");
 						// Consumer has accepted the proposal
-						
-						// notice the agent that we have provided some energy to a consumer
-						this.fireSignal(new ConsumeEnergyInfluence(this, proposal.getRequest()));
-						
-						System.out.println("provider fire signal");
+												
+						try {
+							// notice the agent that we have provided some energy to a consumer
+							this.executeCapacityCall(UpdateProviderAttrCapacity.class, proposal.getRequest());												
+						} catch (Throwable e) {
+							error(e.getLocalizedMessage());
+						}
 					} else {
-						System.out.println("provider : consumer rejected proposal");
+						System.out.println(this.getPlayer().getName()+" : consumer rejected proposal");
 					}
 					proposalFinalizedConsumed = true;
 				}
