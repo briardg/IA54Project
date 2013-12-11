@@ -173,7 +173,7 @@ public class PropulsionEngineAgent extends Agent {
 			
 			PropulsionEngineAgent.this.setEnergyConsume(PropulsionEngineAgent.this.getEnergyConsume()+best.getElectricEnergyProposal());
 			System.out.println(PropulsionEngineAgent.this.getName()+" : "+PropulsionEngineAgent.this.getEnergyConsume());
-			System.out.println("FindBestProposalPECapacityImpl, best proposal :"+best);
+			System.out.println("FindBestProposalPECapacityImpl, best proposal :"+best.getProvider().getPlayer().getName());
 		}
 	}
 	

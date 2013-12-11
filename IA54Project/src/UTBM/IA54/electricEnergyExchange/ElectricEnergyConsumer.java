@@ -16,7 +16,6 @@ import UTBM.IA54.capacity.FindBestProposalCapacity;
 import UTBM.IA54.capacity.Proposal;
 import UTBM.IA54.capacity.ProposalFinalized;
 import UTBM.IA54.capacity.Request;
-import UTBM.IA54.influence.ConsumeEnergyInfluence;
 import UTBM.IA54.message.EnergyRequestMessage;
 import UTBM.IA54.message.ProposalEnergyMessage;
 import UTBM.IA54.message.ProposalFinalizedEnergyMessage;
@@ -28,6 +27,9 @@ public class ElectricEnergyConsumer extends Role {
 	private Request currentRequest;
 	private int counter = 0;
 	private int unitTimeToWait;
+
+	private final int MAX_UNIT_TIME_TO_WAIT = 3;
+	private final int MAX_UNIT_TIME_TO_WAIT_PROPOSAL = 10;
 
 	public ElectricEnergyConsumer() {
 		this.addObtainCondition(new HasAllRequiredCapacitiesCondition(Arrays.asList(ComputeRequestCapacity.class, FindBestProposalCapacity.class)));
@@ -45,7 +47,7 @@ public class ElectricEnergyConsumer extends Role {
 
 	@Override
 	public Status live() {
-		if(this.counter < 15)
+		if(this.counter < 20)
 			this.state = this.run();
 		this.counter++;
 		return StatusFactory.ok(this);
@@ -54,7 +56,7 @@ public class ElectricEnergyConsumer extends Role {
 	private State run() {
 		switch(this.state) {
 		case WAITING:
-			System.out.println(this.getPlayer().getName()+" : waiting");
+			System.out.println(this.getPlayer().getName()+" consumer : waiting state");
 			this.timeUnit = 0;
 			try {
 				CapacityContext cc = this.executeCapacityCall(ComputeRequestCapacity.class, (Object)null);
@@ -78,19 +80,20 @@ public class ElectricEnergyConsumer extends Role {
 			
 		case SEND_ENERGY_REQUEST:
 			// Send request to all electric energy providers
-			System.out.println(this.getPlayer().getName()+" request sent");
+			System.out.println(this.getPlayer().getName()+" consumer request sent");
 			this.broadcastMessage(ElectricEnergyProvider.class, new EnergyRequestMessage(this.currentRequest));
 			
 			return State.WAITING_PROPOSAL;
 			
 		case WAITING_PROPOSAL:
-			System.out.println(this.getPlayer().getName()+" : waiting proposal");
+			System.out.println(this.getPlayer().getName()+" consumer : waiting proposal");
 			
-			if(this.unitTimeToWait >= 3) {
+			if(this.unitTimeToWait >= this.MAX_UNIT_TIME_TO_WAIT) {
 				this.unitTimeToWait = 0;
 				
 				List<Proposal> proposals = new ArrayList<Proposal>();
 				List<Proposal> proposalsUpToDate = new ArrayList<Proposal>();
+				List<Message> proposalsExpired = new ArrayList<Message>();
 				
 				// get messages from providers			
 				for(Message m : this.getMessages()) {
@@ -100,16 +103,20 @@ public class ElectricEnergyConsumer extends Role {
 						if(this.currentRequest.equals(p.getRequest())) {
 							// Put only proposals which response to the current request
 							proposalsUpToDate.add(p);
+						} else {
+							// Else put them to this list. They will be removed because they are expired
+							proposalsExpired.add(m);
 						}
 					}
-				}			
-							
-				if(proposals.size() > 0) {
-					System.out.println(this.getPlayer().getName()+" : consumer is finding best proposal");
+				}		
+											
+				if(proposalsUpToDate.size() > 0) {
+					System.out.println(this.getPlayer().getName()+" consumer : is finding best proposal");
 					try {
 						CapacityContext cc = this.executeCapacityCall(FindBestProposalCapacity.class, proposalsUpToDate.toArray());
 						
 						if(cc.isResultAvailable()) {
+							// Get best proposal
 							Proposal p = (Proposal)cc.getOutputValueAt(0);
 							
 							// send answer to all providers
@@ -130,10 +137,17 @@ public class ElectricEnergyConsumer extends Role {
 
 					return State.WAITING;
 				}
+				
+				proposals = null;
+				
+				// Remove messages expired
+				for(Message m : proposalsExpired) {
+					this.getMailbox().remove(m);				
+				}
 	
 				this.timeUnit++;
 				
-				if(this.timeUnit > 10) {
+				if(this.timeUnit > this.MAX_UNIT_TIME_TO_WAIT_PROPOSAL) {
 					// no answer to the request message => send new request
 					return State.WAITING;
 				}

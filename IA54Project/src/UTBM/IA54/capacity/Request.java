@@ -64,4 +64,41 @@ public class Request {
 		HIGH,
 		VERY_HIGH		
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((consumer == null) ? 0 : consumer.hashCode());
+		result = prime * result + ((date == null) ? 0 : date.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(electricEnergyRequest);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result
+				+ ((priority == null) ? 0 : priority.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Request other = (Request) obj;
+		if (consumer == null) {
+			if (other.consumer != null)
+				return false;
+		} else if (!consumer.equals(other.consumer))
+			return false;
+		if (date == null) {
+			if (other.date != null)
+				return false;
+		} else if (!date.equals(other.date))
+			return false;
+		return true;
+	}
 }

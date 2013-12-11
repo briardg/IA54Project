@@ -21,17 +21,14 @@ public class Car {
 		
 		this.battery = new BatteryAgent(this);
 		this.battery.setEnergyStored(90);
-		BatteryAgent battery2 = new BatteryAgent(this);
-		battery2.setEnergyStored(100);
-		//this.te = new ThermalEngineAgent(this);
-		//this.srec = new SRECAgent(this);
+		this.te = new ThermalEngineAgent(this);
+		this.srec = new SRECAgent(this);
 		this.propulsion = new PropulsionEngineAgent(this);
 		this.propulsion.setEnergyConsume(0);
 		
 		k.launchLightAgent(this.battery, "battery");
-		k.launchLightAgent(battery2, "battery2");
-		//k.launchHeavyAgent(this.te, "THERMAL_ENGINE");
-		//k.launchHeavyAgent(this.srec, "SREV");
+		k.launchHeavyAgent(this.te, "THERMAL_ENGINE");
+		k.launchHeavyAgent(this.srec, "SREV");
 		k.launchLightAgent(this.propulsion, "PROPULSION_ENGINE");
 	}
 
