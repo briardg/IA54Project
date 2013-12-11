@@ -1,7 +1,6 @@
 package UTBM.IA54.agents;
 
 import org.janusproject.kernel.agent.Agent;
-import org.janusproject.kernel.agentsignal.QueuedSignalAdapter;
 import org.janusproject.kernel.crio.capacity.CapacityContainer;
 import org.janusproject.kernel.crio.capacity.CapacityContext;
 import org.janusproject.kernel.crio.capacity.CapacityImplementation;
@@ -18,7 +17,6 @@ import UTBM.IA54.capacity.Request;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyExchangeOrganization;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyConsumer;
 import UTBM.IA54.energyManager.Car;
-import UTBM.IA54.influence.ConsumeEnergyInfluence;
 
 /**
  * Propulsion engine agent
@@ -43,11 +41,6 @@ public class PropulsionEngineAgent extends Agent {
 	 * Torque provided according to the energyConsume
 	 */
 	private double torqueProvided;
-	/**
-	 * Signal listener. Triggered when propulsion engine consume electric energy from a provider
-	 */
-	private final QueuedSignalAdapter<ConsumeEnergyInfluence> signalConsumerListener = new QueuedSignalAdapter<ConsumeEnergyInfluence>(ConsumeEnergyInfluence.class);
-	
 	
 	/**
 	 * Default constructor
@@ -81,8 +74,6 @@ public class PropulsionEngineAgent extends Agent {
 				return StatusFactory.cancel(this);
 			}
 		}
-		// add signals listener
-		this.addSignalListener(this.signalConsumerListener);
 		
 		return StatusFactory.ok(this);
 	}
@@ -136,8 +127,7 @@ public class PropulsionEngineAgent extends Agent {
 	@Override
 	public String toString() {
 		return "PropulsionEngineAgent [energyConsumed="
-				+ energyConsumed + ", torqueProvided=" + torqueProvided
-				+ ", signalConsumerListener=" + signalConsumerListener + "]";
+				+ energyConsumed + ", torqueProvided=" + torqueProvided + "]";
 	}
 
 

@@ -1,4 +1,4 @@
-package UTBM.IA54.torque;
+package UTBM.IA54.torqueEnergyExchange;
 
 import org.janusproject.kernel.crio.core.CRIOContext;
 import org.janusproject.kernel.crio.core.Organization;

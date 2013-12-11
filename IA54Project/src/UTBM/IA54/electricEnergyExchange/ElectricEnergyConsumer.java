@@ -47,7 +47,7 @@ public class ElectricEnergyConsumer extends Role {
 
 	@Override
 	public Status live() {
-		if(this.counter < 20)
+		if(this.counter < 40)
 			this.state = this.run();
 		this.counter++;
 		return StatusFactory.ok(this);
