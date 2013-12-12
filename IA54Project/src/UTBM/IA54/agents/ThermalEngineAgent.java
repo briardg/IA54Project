@@ -18,16 +18,27 @@ import UTBM.IA54.electricEnergyExchange.ElectricEnergyExchangeOrganization;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyProvider;
 import UTBM.IA54.energyManager.Car;
 
+/**
+ * Thermal engine agent
+ * @author Anthony
+ *
+ */
 public class ThermalEngineAgent extends Agent{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8950364472045158287L;
-
+	/**
+	 * the car
+	 */
 	private Car car;
 	private double energyProvided;
 	
+	/**
+	 * 
+	 * @param c the car
+	 */
 	public ThermalEngineAgent(Car c) {
 		this.car = c;
 		this.energyProvided = 0.0;
@@ -42,7 +53,7 @@ public class ThermalEngineAgent extends Agent{
 		cc.addCapacity(new UpdateProviderAttrTECapacityImpl());
 				
 		GroupAddress ga = getOrCreateGroup(ElectricEnergyExchangeOrganization.class);
-	
+		// Associate role
 		if(ga != null) {
 			if(requestRole(ElectricEnergyProvider.class, ga) == null) {
 				return StatusFactory.cancel(this);
@@ -51,14 +62,26 @@ public class ThermalEngineAgent extends Agent{
 		return StatusFactory.ok(this);
 	}
 
+	/**
+	 * 
+	 * @return the car
+	 */
 	public Car getCar() {
 		return car;
 	}
 			
+	/**
+	 * 
+	 * @return energy provided
+	 */
 	public double getEnergyProvided() {
 		return energyProvided;
 	}
 
+	/**
+	 * 
+	 * @param energyProvided energy provided
+	 */
 	public void setEnergyProvided(double energyProvided) {
 		this.energyProvided = energyProvided;
 	}
@@ -69,36 +92,56 @@ public class ThermalEngineAgent extends Agent{
 				+ energyProvided + ", signalProviderListener=]";
 	}
 
+
+	/****************************************************************/
+	/**************************** INNER CLASS ***********************/
+	/****************************************************************/
+	/**
+	 * Inner class,  defines how to compute a Proposal according to a request
+	 * @author Anthony
+	 *
+	 */
 	private class ComputeProposalTECapacityImpl 
 	extends CapacityImplementation 
 	implements ComputeProposalCapacity {
 		
+		/**
+		 * 
+		 */
 		public ComputeProposalTECapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			Request request = (Request)call.getInputValues()[0];
 			// TODO behavior
+			
+			Request request = (Request)call.getInputValues()[0];
 			
 			Proposal proposal = new Proposal(request.getElectricEnergyRequest(), request);
 			call.setOutputValues(proposal);
-			
-			System.out.print("ComputeProposalTECapacityImpl, "+ThermalEngineAgent.this.getName()+", proposal :");
 		}
 	}
 	
+	/**
+	 * Inner class, update some attributes of the agent
+	 * @author Anthony
+	 *
+	 */
 	private class UpdateProviderAttrTECapacityImpl 
 	extends CapacityImplementation 
 	implements UpdateProviderAttrCapacity {
-		
+		/**
+		 * 
+		 */
 		public UpdateProviderAttrTECapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
+			// TODO behavior
+			
 			Request r = (Request)call.getInputValues()[0];
 			ThermalEngineAgent.this.setEnergyProvided(ThermalEngineAgent.this.getEnergyProvided()-r.getElectricEnergyRequest());
 			System.out.println(ThermalEngineAgent.this.getName()+" : "+ThermalEngineAgent.this.getEnergyProvided());

@@ -7,11 +7,20 @@ import org.janusproject.kernel.status.StatusFactory;
 
 import UTBM.IA54.capacity.ComputeTorqueCapacity;
 
-
+/**
+ * Torque provider
+ * @author Anthony
+ *
+ */
 public class TorqueProvider extends Role {
-	
+	/**
+	 * State of the role
+	 */
 	private State state = null;
 
+	/**
+	 * 
+	 */
 	public TorqueProvider() {
 		addObtainCondition(new HasAllRequiredCapacitiesCondition(ComputeTorqueCapacity.class));
 	}
@@ -46,6 +55,11 @@ public class TorqueProvider extends Role {
 		}
 	}
 
+	/**
+	 * Enum which defines states of the role
+	 * @author Anthony
+	 *
+	 */
 	private enum State {
 		WAIT_ENERGY,
 		PRODUCE_TORQUE;

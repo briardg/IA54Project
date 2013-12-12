@@ -1,5 +1,7 @@
 package UTBM.IA54.agents;
 
+import java.util.ArrayList;
+
 import org.janusproject.kernel.agent.Agent;
 import org.janusproject.kernel.crio.capacity.CapacityContainer;
 import org.janusproject.kernel.crio.capacity.CapacityContext;
@@ -47,7 +49,6 @@ public class BatteryAgent extends Agent{
 	
 	@Override
 	public Status activate(Object... parameters) {
-		System.out.println("initialize "+this.getName()+" agent");
 		// Initialize Capacity
 		CapacityContainer cc = getCapacityContainer();
 		cc.addCapacity(new ComputeProposalBatteryCapacityImpl());
@@ -118,19 +119,21 @@ public class BatteryAgent extends Agent{
 	extends CapacityImplementation 
 	implements ComputeProposalCapacity {
 		
+		/**
+		 * 
+		 */
 		public ComputeProposalBatteryCapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}
 		
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			Request request = (Request)call.getInputValues()[0];
 			// TODO behavior
+			
+			Request request = (Request)call.getInputValues()[0];
 			
 			Proposal proposal = new Proposal(request.getElectricEnergyRequest(), request);
 			call.setOutputValues(proposal);
-			
-			System.out.print("ComputeProposalBatteryCapacityImpl, "+BatteryAgent.this.getName()+", proposal :");
 		}
 	}
 	
@@ -144,7 +147,7 @@ public class BatteryAgent extends Agent{
 	implements ComputeRequestCapacity {
 		
 		/**
-		 * Default constructor
+		 * 
 		 */
 		public ComputeRequestBatteryCapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
@@ -152,10 +155,10 @@ public class BatteryAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
+			// TODO behavior
+			
 			Request request = new Request(10, Request.Priority.MEDIUM);
 			call.setOutputValues(request);
-						
-			System.out.println("ComputeRequestBatteryCapacityImpl, "+BatteryAgent.this.getName()+", request:"+request);
 		}
 	}
 	
@@ -168,38 +171,55 @@ public class BatteryAgent extends Agent{
 	extends CapacityImplementation
 	implements FindBestProposalCapacity {
 		
+		/**
+		 * 
+		 */
 		public FindBestProposalBatteryCapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			Proposal best = null;
+			// TODO behavior
+			
+			ArrayList<Proposal> best = new ArrayList<Proposal>();
 			
 			Object[] o = call.getInputValues();
 			
 			if(o.length > 0) {
-				best = (Proposal)o[0];
+				best.add((Proposal)o[0]);
 			}
 			
 			if(best != null)
 				call.setOutputValues(best);
-			BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored()+best.getElectricEnergyProposal());
-			System.out.println("FindBestProposalBatteryCapacityImpl, "+BatteryAgent.this.getName()+", best proposal:"+best);
-			System.out.println("agent "+BatteryAgent.this.getName()+" : "+BatteryAgent.this.getEnergyStored());
+			
+			for(Proposal p : best) 
+				BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored()+p.getElectricEnergyProposal());
+			
+			System.out.println(BatteryAgent.this.getName()+" : "+BatteryAgent.this.getEnergyStored());
 		}
 	}
 
+	/**
+	 * Inner class, update some attributes of the agent
+	 * @author Anthony
+	 *
+	 */
 	private class UpdateProviderAttrBatteryCapacityImpl 
 	extends CapacityImplementation 
 	implements UpdateProviderAttrCapacity {
 		
+		/**
+		 * 
+		 */
 		public UpdateProviderAttrBatteryCapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
+			// TODO behavior
+			
 			Request r = (Request)call.getInputValues()[0];
 			BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored()-r.getElectricEnergyRequest());
 			System.out.println(BatteryAgent.this.getName()+" : "+BatteryAgent.this.getEnergyStored());

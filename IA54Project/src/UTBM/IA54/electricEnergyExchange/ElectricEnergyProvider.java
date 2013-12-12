@@ -21,14 +21,23 @@ import UTBM.IA54.message.EnergyRequestMessage;
 import UTBM.IA54.message.ProposalEnergyMessage;
 import UTBM.IA54.message.ProposalFinalizedEnergyMessage;
 
+/**
+ * Role which defines the behavior of a Provider of electric energy
+ * @author Anthony
+ *
+ */
 public class ElectricEnergyProvider extends Role {
-	
+	/**
+	 * the state of the role
+	 */
 	private State state = null;
 	private int counter = 0;
 	private int unitTimeToWait;
-	
 	private final int MAX_UNIT_TIME_TO_WAIT = 3;
 	
+	/**
+	 * 
+	 */
 	public ElectricEnergyProvider() {
 		this.addObtainCondition(
 				new HasAllRequiredCapacitiesCondition(
@@ -39,12 +48,15 @@ public class ElectricEnergyProvider extends Role {
 						)
 				)
 		);
+		
 		this.unitTimeToWait = 0;
 	}
 	
 	@Override
 	public Status activate(Object... params) {
 		this.state = State.WAITING_REQUEST;
+		
+		System.out.println(this.getPlayer().getName()+" provider get initialized => waiting request");
 
 		return super.activate(params);
 	}
@@ -57,11 +69,13 @@ public class ElectricEnergyProvider extends Role {
 		return StatusFactory.ok(this);
 	}
 
+	/**
+	 * 
+	 * @return the state of the role
+	 */
 	private State run() {
 		switch(this.state) {
 		case WAITING_REQUEST:
-			System.out.println(this.getPlayer().getName()+" provider : waiting request state");
-			
 			// Wait MAX_UNIT_TIME_TO_WAIT unit time to receive more requests
 			if(this.unitTimeToWait >= this.MAX_UNIT_TIME_TO_WAIT) {
 				this.unitTimeToWait = 0;
@@ -89,6 +103,7 @@ public class ElectricEnergyProvider extends Role {
 							}
 						}
 					}
+					System.out.println("");
 					
 					// Remove messages send by this role itself
 					for(Message m : messageToRemove) {
@@ -115,7 +130,7 @@ public class ElectricEnergyProvider extends Role {
 										p.setProvider(this.getAddress());
 		
 										// Send proposal to consumer	
-										System.out.println(this.getPlayer().getName()+" provider : Send proposal to consumer"+p);
+										System.out.println(this.getPlayer().getName()+" provider : Send proposal to consumer :"+p);
 										this.sendMessage(request.getConsumer(), new ProposalEnergyMessage(p));
 		
 										// Remove request from the mailbox
@@ -137,7 +152,6 @@ public class ElectricEnergyProvider extends Role {
 			return State.WAITING_REQUEST;
 			
 		case WAITING_ANSWER_PROPOSAL:
-			System.out.println(this.getPlayer().getName()+" provider : waiting answer proposal state");
 			Proposal proposal = null;
 			
 			boolean proposalFinalizedConsumed = false;
@@ -146,10 +160,10 @@ public class ElectricEnergyProvider extends Role {
 			for(Message m : this.getMessages(ProposalFinalizedEnergyMessage.class)) {
 				if(m instanceof ProposalFinalizedEnergyMessage) {
 					proposal = ((ProposalFinalizedEnergyMessage) m).getProposalFinalized().getProposal();
-					// if proposal == null, the consume has rejected the proposal
 					
+					// if proposal == null, the consume has rejected the proposal
 					if(proposal != null) {
-						System.out.println(this.getPlayer().getName()+" provider : consumer accepted proposal");
+						System.out.println(this.getPlayer().getName()+" provider : consumer has accepted proposal");
 						// Consumer has accepted the proposal
 												
 						try {
@@ -159,7 +173,7 @@ public class ElectricEnergyProvider extends Role {
 							error(e.getLocalizedMessage());
 						}
 					} else {
-						System.out.println(this.getPlayer().getName()+" provider : consumer rejected proposal");
+						System.out.println(this.getPlayer().getName()+" provider : consumer has rejected proposal");
 					}
 					proposalFinalizedConsumed = true;
 				}
@@ -193,10 +207,14 @@ public class ElectricEnergyProvider extends Role {
 				break;
 			}
 		}
-		System.out.println("\n message à supprimer : "+requestMessage+"\n");
 		return requestMessage;		
 	}
 
+	/**
+	 * Enum contenting the different states of the role
+	 * @author Anthony
+	 *
+	 */
 	private enum State {
 		/**
 		 * Wait some request. Continue to produce energy

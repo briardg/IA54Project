@@ -4,6 +4,11 @@ import org.janusproject.kernel.message.ObjectMessage;
 
 import UTBM.IA54.capacity.Proposal;
 
+/**
+ * Message contenting a {@link Proposal}
+ * @author Anthony
+ *
+ */
 public class ProposalEnergyMessage extends ObjectMessage{
 
 	/**
@@ -15,6 +20,10 @@ public class ProposalEnergyMessage extends ObjectMessage{
 		super(proposal);
 	}
 	
+	/**
+	 * 
+	 * @return the proposal
+	 */
 	public Proposal getProposal() {
 		return (Proposal)this.getContent();
 	}

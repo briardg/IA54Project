@@ -17,19 +17,27 @@ import UTBM.IA54.electricEnergyExchange.ElectricEnergyExchangeOrganization;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyProvider;
 import UTBM.IA54.energyManager.Car;
 
+/**
+ * SREC Agent
+ * @author Anthony
+ *
+ */
 public class SRECAgent extends Agent {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8046981036507670254L;
-
+	
 	private double energyProvided;
+	/**
+	 * The car
+	 */
 	private Car car;
 	
 	/**
 	 * 
-	 * @param c
+	 * @param c a car
 	 */
 	public SRECAgent(Car c) {
 		this.energyProvided = 0.0;
@@ -46,6 +54,7 @@ public class SRECAgent extends Agent {
 		
 		GroupAddress ga = getOrCreateGroup(ElectricEnergyExchangeOrganization.class);
 	
+		// associate Role
 		if(ga != null) {
 			if(requestRole(ElectricEnergyProvider.class, ga) == null) {
 				return StatusFactory.cancel(this);
@@ -55,14 +64,26 @@ public class SRECAgent extends Agent {
 		return StatusFactory.ok(this);
 	}
 	
+	/**
+	 * 
+	 * @return the car
+	 */
 	public Car getCar() {
 		return car;
 	}
 			
+	/**
+	 * 
+	 * @return energy provided
+	 */
 	public double getEnergyProvided() {
 		return energyProvided;
 	}
 
+	/**
+	 * 
+	 * @param energyProvided energy provided
+	 */
 	public void setEnergyProvided(double energyProvided) {
 		this.energyProvided = energyProvided;
 	}
@@ -76,10 +97,18 @@ public class SRECAgent extends Agent {
 	/****************************************************************/
 	/**************************** INNER CLASS ***********************/
 	/****************************************************************/
+	/**
+	 * Inner class, defines how to compute a Proposal according to a Request
+	 * @author Anthony
+	 *
+	 */
 	private class ComputeProposalSRECCapacityImpl 
 	extends CapacityImplementation 
 	implements ComputeProposalCapacity {
 		
+		/**
+		 * 
+		 */
 		public ComputeProposalSRECCapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}
@@ -90,10 +119,18 @@ public class SRECAgent extends Agent {
 		}
 	}
 	
+	/**
+	 * Inner class, Update some attributes of the agent
+	 * @author Anthony
+	 *
+	 */
 	private class UpdateProviderAttrSRECCapacityImpl 
 	extends CapacityImplementation 
 	implements UpdateProviderAttrCapacity {
 		
+		/**
+		 * 
+		 */
 		public UpdateProviderAttrSRECCapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}

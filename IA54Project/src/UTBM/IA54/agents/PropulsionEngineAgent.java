@@ -52,7 +52,6 @@ public class PropulsionEngineAgent extends Agent {
 	
 	@Override
 	public Status activate(Object... parameters) {
-		System.out.println("initialize  "+this.getName()+"  agent");
 		this.energyConsumed = 0.0;		
 		
 		// Initialize Capacity
@@ -150,6 +149,8 @@ public class PropulsionEngineAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
+			// TODO behavior
+			
 			Proposal best = null;
 			
 			Object[] o = call.getInputValues();
@@ -163,7 +164,6 @@ public class PropulsionEngineAgent extends Agent {
 			
 			PropulsionEngineAgent.this.setEnergyConsume(PropulsionEngineAgent.this.getEnergyConsume()+best.getElectricEnergyProposal());
 			System.out.println(PropulsionEngineAgent.this.getName()+" : "+PropulsionEngineAgent.this.getEnergyConsume());
-			System.out.println("FindBestProposalPECapacityImpl, best proposal :"+best.getProvider().getPlayer().getName());
 		}
 	}
 	
@@ -188,7 +188,6 @@ public class PropulsionEngineAgent extends Agent {
 			// create a Request according to the needed of energy
 			Request request = new Request(10, Request.Priority.MEDIUM);
 			call.setOutputValues(request);
-			System.out.println("ComputeRequestPECapacityImpl, "+PropulsionEngineAgent.this.getName()+" : "+request);
 		}
 	}
 	
@@ -208,10 +207,11 @@ public class PropulsionEngineAgent extends Agent {
 		@Override
 		public void call(CapacityContext call) throws Exception {
 			// TODO behavior
+			
 			PropulsionEngineAgent.this.setTorqueProvided(PropulsionEngineAgent.this.getEnergyConsume()*0.5);
 			PropulsionEngineAgent.this.setEnergyConsume(0.0);
 			
-			System.out.println("ComputeTorqueCapacityImpl, "+PropulsionEngineAgent.this.getName()+" : "+PropulsionEngineAgent.this);
+			System.out.println("ComputeTorqueCapacityImpl, "+PropulsionEngineAgent.this.getName()+" : "+PropulsionEngineAgent.this.getTorqueProvided());
 		}
 	}
 }

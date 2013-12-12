@@ -1,9 +1,20 @@
 package UTBM.IA54.capacity;
 
+/**
+ * ProposalFinalized object is an answer to a proposal given by the consumer to a provider
+ * @author Anthony
+ *
+ */
 public class ProposalFinalized {
-	
+	/**
+	 * a proposal
+	 */
 	private Proposal proposal;
 	
+	/**
+	 * 
+	 * @param proposalFinalized a proposal
+	 */
 	public ProposalFinalized(Proposal proposalFinalized) {
 		this.proposal = proposalFinalized;
 	}

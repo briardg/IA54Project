@@ -20,19 +20,39 @@ import UTBM.IA54.message.EnergyRequestMessage;
 import UTBM.IA54.message.ProposalEnergyMessage;
 import UTBM.IA54.message.ProposalFinalizedEnergyMessage;
 
+/**
+ * Role which defines the behavior of a Consumer of electric energy
+ * @author Anthony
+ *
+ */
 public class ElectricEnergyConsumer extends Role {
-	
+	/**
+	 * the current state of the role
+	 */
 	private State state = null;
 	private int timeUnit;
+	/**
+	 * current Request
+	 */
 	private Request currentRequest;
 	private int counter = 0;
 	private int unitTimeToWait;
-
 	private final int MAX_UNIT_TIME_TO_WAIT = 3;
 	private final int MAX_UNIT_TIME_TO_WAIT_PROPOSAL = 10;
 
+	/**
+	 * 
+	 */
 	public ElectricEnergyConsumer() {
-		this.addObtainCondition(new HasAllRequiredCapacitiesCondition(Arrays.asList(ComputeRequestCapacity.class, FindBestProposalCapacity.class)));
+		this.addObtainCondition(
+				new HasAllRequiredCapacitiesCondition(
+						Arrays.asList(
+								ComputeRequestCapacity.class, 
+								FindBestProposalCapacity.class
+						)
+				)
+		);
+		
 		this.timeUnit = 0;
 		this.currentRequest = null;
 		this.unitTimeToWait = 0;
@@ -41,6 +61,8 @@ public class ElectricEnergyConsumer extends Role {
 	@Override
 	public Status activate(Object... params) {
 		this.state = State.WAITING;
+
+		System.out.println(this.getPlayer().getName()+" consumer get initialized");
 
 		return super.activate(params);
 	}
@@ -53,16 +75,21 @@ public class ElectricEnergyConsumer extends Role {
 		return StatusFactory.ok(this);
 	}
 	
+	/**
+	 * 
+	 * @return the last state of the agent
+	 */
 	private State run() {
 		switch(this.state) {
 		case WAITING:
-			System.out.println(this.getPlayer().getName()+" consumer : waiting state");
 			this.timeUnit = 0;
 			try {
 				CapacityContext cc = this.executeCapacityCall(ComputeRequestCapacity.class, (Object)null);
 								
 				if(cc.isResultAvailable()) {
 					this.currentRequest = (Request)cc.getOutputValueAt(0);
+					
+					System.out.println(this.getPlayer().getName()+" consumer has created request :"+this.currentRequest);
 					
 					if(this.currentRequest != null) {
 						this.currentRequest.setConsumer(this.getAddress());
@@ -80,19 +107,19 @@ public class ElectricEnergyConsumer extends Role {
 			
 		case SEND_ENERGY_REQUEST:
 			// Send request to all electric energy providers
-			System.out.println(this.getPlayer().getName()+" consumer request sent");
 			this.broadcastMessage(ElectricEnergyProvider.class, new EnergyRequestMessage(this.currentRequest));
+			
+			System.out.println(this.getPlayer().getName()+" consumer : requets sent => Waiting proposal");
 			
 			return State.WAITING_PROPOSAL;
 			
 		case WAITING_PROPOSAL:
-			System.out.println(this.getPlayer().getName()+" consumer : waiting proposal");
-			
 			if(this.unitTimeToWait >= this.MAX_UNIT_TIME_TO_WAIT) {
 				this.unitTimeToWait = 0;
 				
 				List<Proposal> proposals = new ArrayList<Proposal>();
 				List<Proposal> proposalsUpToDate = new ArrayList<Proposal>();
+				// This list will content all expired proposal (these proposals answer to an old request)
 				List<Message> proposalsExpired = new ArrayList<Message>();
 				
 				// get messages from providers			
@@ -111,17 +138,21 @@ public class ElectricEnergyConsumer extends Role {
 				}		
 											
 				if(proposalsUpToDate.size() > 0) {
-					System.out.println(this.getPlayer().getName()+" consumer : is finding best proposal");
 					try {
 						CapacityContext cc = this.executeCapacityCall(FindBestProposalCapacity.class, proposalsUpToDate.toArray());
 						
 						if(cc.isResultAvailable()) {
 							// Get best proposal
-							Proposal p = (Proposal)cc.getOutputValueAt(0);
+							ArrayList<Proposal> props = (ArrayList<Proposal>)cc.getOutputValueAt(0);
+							
+							System.out.println(this.getPlayer().getName()+" consumer: number of proposals : "+proposalsUpToDate.size()+", best proposal from: ");
+							
+							for(Proposal a : props)
+								System.out.println(a.getProvider().getPlayer().getName());
 							
 							// send answer to all providers
 							for(Proposal prop : proposals) {
-								if(p.getProvider().equals(prop.getProvider())) {
+								if(props.contains(prop)) {
 									// positive answer
 									this.sendMessage(prop.getProvider(), new ProposalFinalizedEnergyMessage(new ProposalFinalized(prop)));
 								} else {
@@ -138,6 +169,7 @@ public class ElectricEnergyConsumer extends Role {
 					return State.WAITING;
 				}
 				
+				proposalsUpToDate = null;
 				proposals = null;
 				
 				// Remove messages expired
@@ -147,7 +179,7 @@ public class ElectricEnergyConsumer extends Role {
 	
 				this.timeUnit++;
 				
-				if(this.timeUnit > this.MAX_UNIT_TIME_TO_WAIT_PROPOSAL) {
+				if(this.timeUnit >= this.MAX_UNIT_TIME_TO_WAIT_PROPOSAL) {
 					// no answer to the request message => send new request
 					return State.WAITING;
 				}
@@ -163,6 +195,11 @@ public class ElectricEnergyConsumer extends Role {
 		}
 	}
 
+	/**
+	 * Enum of the different states of the role
+	 * @author Anthony
+	 *
+	 */
 	private enum State {
 		/**
 		 *  wait if the role doesn't need energy

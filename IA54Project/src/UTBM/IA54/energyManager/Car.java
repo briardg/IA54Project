@@ -28,7 +28,7 @@ public class Car {
 		
 		k.launchLightAgent(this.battery, "battery");
 		k.launchLightAgent(this.te, "THERMAL_ENGINE");
-		k.launchLightAgent(this.srec, "SREV");
+		k.launchLightAgent(this.srec, "SREC");
 		k.launchLightAgent(this.propulsion, "PROPULSION_ENGINE");
 	}
 
