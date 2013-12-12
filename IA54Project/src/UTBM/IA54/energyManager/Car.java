@@ -27,8 +27,8 @@ public class Car {
 		this.propulsion.setEnergyConsume(0);
 		
 		k.launchLightAgent(this.battery, "battery");
-		k.launchHeavyAgent(this.te, "THERMAL_ENGINE");
-		k.launchHeavyAgent(this.srec, "SREV");
+		k.launchLightAgent(this.te, "THERMAL_ENGINE");
+		k.launchLightAgent(this.srec, "SREV");
 		k.launchLightAgent(this.propulsion, "PROPULSION_ENGINE");
 	}
 

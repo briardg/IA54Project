@@ -37,7 +37,7 @@ public class SRECAgent extends Agent {
 	}
 	
 	@Override
-	public Status activate(Object... parameters) {		
+	public Status activate(Object... parameters) {	
 		// Initialize Capacity
 		CapacityContainer cc = getCapacityContainer();
 		cc.addCapacity(new ComputeProposalSRECCapacityImpl());
