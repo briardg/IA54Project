@@ -11,6 +11,7 @@ import org.janusproject.kernel.status.StatusFactory;
 
 import UTBM.IA54.capacity.ComputeProposalCapacity;
 import UTBM.IA54.capacity.FindBestRequestCapacityImpl;
+import UTBM.IA54.capacity.Proposal;
 import UTBM.IA54.capacity.Request;
 import UTBM.IA54.capacity.UpdateProviderAttrCapacity;
 import UTBM.IA54.electricEnergyExchange.ElectricEnergyExchangeOrganization;
@@ -115,7 +116,12 @@ public class SRECAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			call.setOutputValues(new Request(100, Request.Priority.MEDIUM));
+			// TODO Behavior
+			
+			Request request = (Request)call.getInputValues()[0];
+			
+			Proposal proposal = new Proposal(request.getElectricEnergyRequest(), request);
+			call.setOutputValues(proposal);
 		}
 	}
 	
@@ -137,9 +143,11 @@ public class SRECAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
+			// TODO Behavior
+			
 			Request r = (Request)call.getInputValues()[0];
 			SRECAgent.this.setEnergyProvided(SRECAgent.this.getEnergyProvided()-r.getElectricEnergyRequest());
-			System.out.println(SRECAgent.this.getName()+" : "+SRECAgent.this.getEnergyProvided());
+			System.out.println(SRECAgent.this.getName()+" energy : "+SRECAgent.this.getEnergyProvided());
 		}
 	}
 }

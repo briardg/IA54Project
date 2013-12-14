@@ -69,7 +69,7 @@ public class ElectricEnergyConsumer extends Role {
 
 	@Override
 	public Status live() {
-		if(this.counter < 40)
+		//if(this.counter < 60)
 			this.state = this.run();
 		this.counter++;
 		return StatusFactory.ok(this);
@@ -89,10 +89,9 @@ public class ElectricEnergyConsumer extends Role {
 				if(cc.isResultAvailable()) {
 					this.currentRequest = (Request)cc.getOutputValueAt(0);
 					
-					System.out.println(this.getPlayer().getName()+" consumer has created request :"+this.currentRequest);
-					
 					if(this.currentRequest != null) {
 						this.currentRequest.setConsumer(this.getAddress());
+						System.out.println(this.getPlayer().getName()+" consumer has created request :"+this.currentRequest);
 						return State.SEND_ENERGY_REQUEST;
 					} else {
 						return State.WAITING;
@@ -109,7 +108,7 @@ public class ElectricEnergyConsumer extends Role {
 			// Send request to all electric energy providers
 			this.broadcastMessage(ElectricEnergyProvider.class, new EnergyRequestMessage(this.currentRequest));
 			
-			System.out.println(this.getPlayer().getName()+" consumer : requets sent => Waiting proposal");
+			System.out.println(this.getPlayer().getName()+" consumer : request sent => Waiting proposal");
 			
 			return State.WAITING_PROPOSAL;
 			
@@ -145,10 +144,12 @@ public class ElectricEnergyConsumer extends Role {
 							// Get best proposal
 							ArrayList<Proposal> props = (ArrayList<Proposal>)cc.getOutputValueAt(0);
 							
-							System.out.println(this.getPlayer().getName()+" consumer: number of proposals : "+proposalsUpToDate.size()+", best proposal from: ");
+							System.out.print(this.getPlayer().getName()+" consumer: number of proposals : "+proposalsUpToDate.size()+", best proposal from: ");
 							
 							for(Proposal a : props)
-								System.out.println(a.getProvider().getPlayer().getName());
+								System.out.print(a.getProvider().getPlayer().getName());
+							
+							System.out.println();
 							
 							// send answer to all providers
 							for(Proposal prop : proposals) {
@@ -178,15 +179,16 @@ public class ElectricEnergyConsumer extends Role {
 				}
 	
 				this.timeUnit++;
-				
-				if(this.timeUnit >= this.MAX_UNIT_TIME_TO_WAIT_PROPOSAL) {
-					// no answer to the request message => send new request
-					return State.WAITING;
-				}
 			} else {
 				this.unitTimeToWait++;
 				this.timeUnit++;
 			}
+			
+			if(this.timeUnit >= this.MAX_UNIT_TIME_TO_WAIT_PROPOSAL) {
+				// no answer to the request message => send new request
+				return State.WAITING;
+			}
+			
 			// If no proposals messages in mailbox
 			return State.WAITING_PROPOSAL;
 			

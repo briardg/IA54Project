@@ -196,7 +196,7 @@ public class BatteryAgent extends Agent{
 			for(Proposal p : best) 
 				BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored()+p.getElectricEnergyProposal());
 			
-			System.out.println(BatteryAgent.this.getName()+" : "+BatteryAgent.this.getEnergyStored());
+			System.out.println(BatteryAgent.this.getName()+" consumer : energy "+BatteryAgent.this.getEnergyStored()+", proposal accepted : "+best);
 		}
 	}
 
@@ -222,7 +222,7 @@ public class BatteryAgent extends Agent{
 			
 			Request r = (Request)call.getInputValues()[0];
 			BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored()-r.getElectricEnergyRequest());
-			System.out.println(BatteryAgent.this.getName()+" : "+BatteryAgent.this.getEnergyStored());
+			System.out.println(BatteryAgent.this.getName()+"provider : "+BatteryAgent.this.getEnergyStored());
 		}
 	}
 }

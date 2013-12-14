@@ -144,7 +144,7 @@ public class ThermalEngineAgent extends Agent{
 			
 			Request r = (Request)call.getInputValues()[0];
 			ThermalEngineAgent.this.setEnergyProvided(ThermalEngineAgent.this.getEnergyProvided()-r.getElectricEnergyRequest());
-			System.out.println(ThermalEngineAgent.this.getName()+" : "+ThermalEngineAgent.this.getEnergyProvided());
+			System.out.println(ThermalEngineAgent.this.getName()+" energy : "+ThermalEngineAgent.this.getEnergyProvided());
 		}
 	}
 }

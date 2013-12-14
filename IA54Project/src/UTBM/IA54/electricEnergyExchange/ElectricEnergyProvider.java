@@ -6,7 +6,6 @@ import java.util.Arrays;
 
 import org.janusproject.kernel.crio.capacity.CapacityContext;
 import org.janusproject.kernel.crio.core.Role;
-import org.janusproject.kernel.mailbox.Mailbox;
 import org.janusproject.kernel.message.Message;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
@@ -63,7 +62,7 @@ public class ElectricEnergyProvider extends Role {
 
 	@Override
 	public Status live() {
-		if(this.counter < 40)
+		//if(this.counter < 60)
 			this.state = this.run();
 		this.counter++;
 		return StatusFactory.ok(this);
@@ -81,36 +80,41 @@ public class ElectricEnergyProvider extends Role {
 				this.unitTimeToWait = 0;
 				
 				ArrayList<Request> requests = new ArrayList<Request>();
-				ArrayList<EnergyRequestMessage> messagesList = new ArrayList<EnergyRequestMessage>();
-				ArrayList<Message> messageToRemove = new ArrayList<Message>();
+				//ArrayList<EnergyRequestMessage> messagesList = new ArrayList<EnergyRequestMessage>();
+				//ArrayList<Message> messageToRemove = new ArrayList<Message>();
 				
 				if(this.hasMessage()) {		
-					Mailbox mailBox = this.getMailbox();
+					//Mailbox mailBox = this.getMailbox();
 					
 					System.out.print(this.getPlayer().getName()+" provider : request list received from :");
 					// look at the mailbox
-					for(Message m : mailBox.iterable(false)) {
-						if(m instanceof EnergyRequestMessage) {
-							EnergyRequestMessage message = (EnergyRequestMessage)m;
-		
-							// Remove message send by this role itself (we can t treat a request sent by this role itself)
-							if(message.getRequest().getConsumer().getPlayer().getName() == this.getPlayer().getName()) {
-								messageToRemove.add(m);
-							} else {
-								requests.add(message.getRequest());
-								System.out.print(", "+message.getRequest().getConsumer().getPlayer().getName());
-								messagesList.add(message);
-							}
+					for(Message m : this.getMessages(EnergyRequestMessage.class)) {
+						EnergyRequestMessage message = (EnergyRequestMessage)m;
+	
+						// Remove message send by this role itself (we can t treat a request sent by the role itself)
+						/*if(message.getRequest().getConsumer().getPlayer().getName() == this.getPlayer().getName()) {
+							messageToRemove.add(m);
+						} else {
+							requests.add(message.getRequest());
+							System.out.print(", "+message.getRequest().getConsumer().getPlayer().getName());
+							//messagesList.add(message);
+						}*/
+						
+						if(message.getRequest().getConsumer().getPlayer().getName() != this.getPlayer().getName()) {
+							requests.add(message.getRequest());
+							System.out.print(", "+message.getRequest().getConsumer().getPlayer().getName());							
 						}
 					}
 					System.out.println("");
 					
-					// Remove messages send by this role itself
+					/*
+					// Remove messages send by the role itself
 					for(Message m : messageToRemove) {
 						this.getMailbox().remove(m);				
 					}
+					*/
 										
-					// if there is no energy request => WAITING_REQUEST state again
+					// if there is no request => WAITING_REQUEST state again
 					if(requests.size() == 0) {
 						return State.WAITING_REQUEST;
 					} else {
@@ -118,7 +122,7 @@ public class ElectricEnergyProvider extends Role {
 							// find the best request
 							CapacityContext cc1 = this.executeCapacityCall(FindBestRequestCapacity.class, requests);
 							
-							if(cc1.isResultAvailable()) {
+							if(cc1.isResultAvailable()) { 
 								Request request = (Request)cc1.getOutputValueAt(0);
 							
 								if(request != null) {
@@ -130,11 +134,11 @@ public class ElectricEnergyProvider extends Role {
 										p.setProvider(this.getAddress());
 		
 										// Send proposal to consumer	
-										System.out.println(this.getPlayer().getName()+" provider : Send proposal to consumer :"+p);
+										System.out.println(this.getPlayer().getName()+" provider : Send proposal to :"+p.getRequest().getConsumer().getPlayer().getName());
 										this.sendMessage(request.getConsumer(), new ProposalEnergyMessage(p));
 		
 										// Remove request from the mailbox
-										this.getMailbox().remove(this.findRequestMessageFromListAccordingToARequest(messagesList, request));
+										//this.getMailbox().remove(this.findRequestMessageFromListAccordingToARequest(messagesList, request));
 										
 										return State.WAITING_ANSWER_PROPOSAL;
 									}
@@ -164,8 +168,7 @@ public class ElectricEnergyProvider extends Role {
 					// if proposal == null, the consume has rejected the proposal
 					if(proposal != null) {
 						System.out.println(this.getPlayer().getName()+" provider : consumer has accepted proposal");
-						// Consumer has accepted the proposal
-												
+						// Consumer has accepted the proposal												
 						try {
 							// notice the agent that we have provided some energy to a consumer
 							this.executeCapacityCall(UpdateProviderAttrCapacity.class, proposal.getRequest());												

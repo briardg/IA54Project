@@ -1,5 +1,7 @@
 package UTBM.IA54.agents;
 
+import java.util.ArrayList;
+
 import org.janusproject.kernel.agent.Agent;
 import org.janusproject.kernel.crio.capacity.CapacityContainer;
 import org.janusproject.kernel.crio.capacity.CapacityContext;
@@ -151,19 +153,21 @@ public class PropulsionEngineAgent extends Agent {
 		public void call(CapacityContext call) throws Exception {
 			// TODO behavior
 			
-			Proposal best = null;
+			ArrayList<Proposal> best = new ArrayList<Proposal>();
 			
 			Object[] o = call.getInputValues();
 			
 			if(o.length > 0) {
-				best = (Proposal)o[0];
+				best.add((Proposal)o[0]);
 			}
 			
 			if(best != null)
 				call.setOutputValues(best);
 			
-			PropulsionEngineAgent.this.setEnergyConsume(PropulsionEngineAgent.this.getEnergyConsume()+best.getElectricEnergyProposal());
-			System.out.println(PropulsionEngineAgent.this.getName()+" : "+PropulsionEngineAgent.this.getEnergyConsume());
+			for(Proposal p : best) 
+				PropulsionEngineAgent.this.setEnergyConsume(PropulsionEngineAgent.this.getEnergyConsume()+p.getElectricEnergyProposal());
+			
+			System.out.println(PropulsionEngineAgent.this.getName()+" consumer, enery : "+PropulsionEngineAgent.this.getEnergyConsume()+", proposal accepted : "+best);
 		}
 	}
 	
@@ -211,7 +215,7 @@ public class PropulsionEngineAgent extends Agent {
 			PropulsionEngineAgent.this.setTorqueProvided(PropulsionEngineAgent.this.getEnergyConsume()*0.5);
 			PropulsionEngineAgent.this.setEnergyConsume(0.0);
 			
-			System.out.println("ComputeTorqueCapacityImpl, "+PropulsionEngineAgent.this.getName()+" : "+PropulsionEngineAgent.this.getTorqueProvided());
+			System.out.println(PropulsionEngineAgent.this.getName()+" : "+PropulsionEngineAgent.this.getTorqueProvided());
 		}
 	}
 }
