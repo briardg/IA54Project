@@ -22,10 +22,19 @@ implements FindBestRequestCapacity {
 
 	@Override
 	public void call(CapacityContext call) throws Exception {
-		// TODO behavior
+		// TODO behavior done only with priority
 		
-		ArrayList<Request> requests = (ArrayList<Request>)call.getInputValues()[0];		
-		call.setOutputValues(requests.get(0));
+		ArrayList<Request> requests = (ArrayList<Request>)call.getInputValues()[0];	
+		Request bestr=null;
+		for(Request r : requests){
+			if(bestr==null){
+				bestr=r;
+			}else if(r.getPriority().ordinal()>bestr.getPriority().ordinal()){
+					bestr=r;
+			}
+		}
+		
+		call.setOutputValues(bestr);
 	}
 
 }

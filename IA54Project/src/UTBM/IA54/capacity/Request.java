@@ -46,12 +46,10 @@ public class Request {
 	 * @param requestPriority
 	 */
 	public Request(double energyQuantity, Priority requestPriority) {
-		this.consumer = null;
-		this.electricEnergyRequest = energyQuantity;
-		this.date = new Date();
-		this.priority = requestPriority;
+		this(null,energyQuantity,requestPriority);
 	}
 	
+
 	/**************************************/
 	/********** Getter and Setter *********/
 	/**************************************/

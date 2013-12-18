@@ -7,6 +7,9 @@ import java.util.Set;
 import org.janusproject.kernel.Kernel;
 import org.janusproject.kernel.agent.Agent;
 
+import utbm.p13.tx52.battery.LithiumBattery;
+import utbm.p13.tx52.motor.ElectricMotor;
+import utbm.p13.tx52.motor.Engine;
 import UTBM.IA54.agents.BatteryAgent;
 import UTBM.IA54.agents.PropulsionEngineAgent;
 import UTBM.IA54.agents.SRECAgent;
@@ -27,9 +30,9 @@ public class Car {
 		this.position = pos;
 		this.kernel = k;
 		
-		this.battery = new BatteryAgent(this);
-		this.te = new ThermalEngineAgent(this);
-		this.propulsion = new PropulsionEngineAgent(this);
+		this.battery = new BatteryAgent(this,new LithiumBattery(12, 1000));
+		this.te = new ThermalEngineAgent(this,new Engine(60,0.75,0.195,200));
+		this.propulsion = new PropulsionEngineAgent(this,new ElectricMotor(0.5, 2, 0.5, 1000, 0.04, 14,0));
 		this.srec = new SRECAgent(this);
 	}
 

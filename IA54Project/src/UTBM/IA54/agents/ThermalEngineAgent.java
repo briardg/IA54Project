@@ -9,6 +9,7 @@ import org.janusproject.kernel.crio.core.GroupAddress;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
 
+import utbm.p13.tx52.motor.Engine;
 import UTBM.IA54.capacity.ComputeProposalCapacity;
 import UTBM.IA54.capacity.FindBestRequestCapacityImpl;
 import UTBM.IA54.capacity.Proposal;
@@ -34,13 +35,15 @@ public class ThermalEngineAgent extends Agent{
 	 */
 	private Car car;
 	private double energyProvided;
+	private Engine engine;
 	
 	/**
 	 * 
 	 * @param c the car
 	 */
-	public ThermalEngineAgent(Car c) {
+	public ThermalEngineAgent(Car c, Engine e) {
 		this.car = c;
+		this.engine=e;
 		this.energyProvided = 0.0;
 	}
 		
@@ -114,11 +117,11 @@ public class ThermalEngineAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior
+			// TODO behavior done with optimalPower could change with specifics values
 			
 			Request request = (Request)call.getInputValues()[0];
 			
-			Proposal proposal = new Proposal(request.getElectricEnergyRequest(), request);
+			Proposal proposal = new Proposal(ThermalEngineAgent.this.engine.getOptimalPower(), request);
 			call.setOutputValues(proposal);
 		}
 	}
@@ -140,10 +143,11 @@ public class ThermalEngineAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior
+			// TODO behavior done just by updated tank
 			
-			Request r = (Request)call.getInputValues()[0];
-			ThermalEngineAgent.this.setEnergyProvided(ThermalEngineAgent.this.getEnergyProvided()-r.getElectricEnergyRequest());
+			//Request r = (Request)call.getInputValues()[0];
+			//ThermalEngineAgent.this.setEnergyProvided(ThermalEngineAgent.this.getEnergyProvided()-r.getElectricEnergyRequest());
+			ThermalEngineAgent.this.engine.updateTank();
 			System.out.println(ThermalEngineAgent.this.getName()+" energy : "+ThermalEngineAgent.this.getEnergyProvided());
 		}
 	}

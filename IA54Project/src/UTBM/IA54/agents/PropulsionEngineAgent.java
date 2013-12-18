@@ -1,6 +1,9 @@
 package UTBM.IA54.agents;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.janusproject.kernel.agent.Agent;
 import org.janusproject.kernel.crio.capacity.CapacityContainer;
@@ -11,6 +14,7 @@ import org.janusproject.kernel.crio.core.GroupAddress;
 import org.janusproject.kernel.status.Status;
 import org.janusproject.kernel.status.StatusFactory;
 
+import utbm.p13.tx52.motor.ElectricMotor;
 import UTBM.IA54.capacity.ComputeTorqueCapacity;
 import UTBM.IA54.capacity.ComputeRequestCapacity;
 import UTBM.IA54.capacity.FindBestProposalCapacity;
@@ -44,12 +48,15 @@ public class PropulsionEngineAgent extends Agent {
 	 */
 	private double torqueProvided;
 	
+	private ElectricMotor electricMotor;
+	
 	/**
 	 * Default constructor
 	 * @param c car
 	 */
-	public PropulsionEngineAgent(Car c) {
+	public PropulsionEngineAgent(Car c, ElectricMotor em) {
 		this.car = c;
+		this.electricMotor=em;
 	}
 	
 	@Override
@@ -151,21 +158,41 @@ public class PropulsionEngineAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior
+			// TODO behavior done
 			
 			ArrayList<Proposal> best = new ArrayList<Proposal>();
+
+			ArrayList<Proposal> proposalList = (ArrayList<Proposal>) Arrays.asList((Proposal[])call.getInputValues());
+			 
+			Collections.sort(proposalList, new Comparator<Proposal>() {
+
+				@Override
+				public int compare(Proposal p1, Proposal p2) {
+					
+					if(p1.getElectricEnergyProposal()>p2.getElectricEnergyProposal())
+						return -1;
+					else if(p1.getElectricEnergyProposal()==p2.getElectricEnergyProposal())
+						return 0;
+					else
+						return 1;
+				}
+				
+			});
 			
-			Object[] o = call.getInputValues();
 			
-			if(o.length > 0) {
-				best.add((Proposal)o[0]);
+			double value=0;
+			for(Proposal p : proposalList){
+				if(p.getElectricEnergyProposal()+value<=p.getRequest().getElectricEnergyRequest()){
+					value+=p.getElectricEnergyProposal();
+					best.add(p);
+				}
 			}
 			
 			if(best != null)
 				call.setOutputValues(best);
+						
 			
-			for(Proposal p : best) 
-				PropulsionEngineAgent.this.setEnergyConsume(PropulsionEngineAgent.this.getEnergyConsume()+p.getElectricEnergyProposal());
+			PropulsionEngineAgent.this.setEnergyConsume(value);
 			
 			System.out.println(PropulsionEngineAgent.this.getName()+" consumer, enery : "+PropulsionEngineAgent.this.getEnergyConsume()+", proposal accepted : "+best);
 		}
@@ -187,10 +214,10 @@ public class PropulsionEngineAgent extends Agent {
 		
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior
-			
+			// TODO behavior done
+			// TODO should calculateThePorwer from the server
 			// create a Request according to the needed of energy
-			Request request = new Request(10, Request.Priority.MEDIUM);
+			Request request = new Request(PropulsionEngineAgent.this.electricMotor.getCurrentPower(), Request.Priority.VERY_HIGH);
 			call.setOutputValues(request);
 		}
 	}
@@ -210,9 +237,8 @@ public class PropulsionEngineAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior
-			
-			PropulsionEngineAgent.this.setTorqueProvided(PropulsionEngineAgent.this.getEnergyConsume()*0.5);
+			// TODO behavior need to be send to the server
+			PropulsionEngineAgent.this.setTorqueProvided(PropulsionEngineAgent.this.getEnergyConsume());
 			PropulsionEngineAgent.this.setEnergyConsume(0.0);
 			
 			System.out.println(PropulsionEngineAgent.this.getName()+" : "+PropulsionEngineAgent.this.getTorqueProvided());
