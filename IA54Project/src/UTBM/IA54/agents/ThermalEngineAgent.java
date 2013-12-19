@@ -43,7 +43,7 @@ public class ThermalEngineAgent extends Agent{
 	 */
 	public ThermalEngineAgent(Car c, Engine e) {
 		this.car = c;
-		this.engine=e;
+		this.engine = e;
 		this.energyProvided = 0.0;
 	}
 		
@@ -145,8 +145,8 @@ public class ThermalEngineAgent extends Agent{
 		public void call(CapacityContext call) throws Exception {
 			// TODO behavior done just by updated tank
 			
-			//Request r = (Request)call.getInputValues()[0];
-			//ThermalEngineAgent.this.setEnergyProvided(ThermalEngineAgent.this.getEnergyProvided()-r.getElectricEnergyRequest());
+			//Proposal p = (Proposal)call.getInputValues()[0];
+			//ThermalEngineAgent.this.setEnergyProvided(ThermalEngineAgent.this.getEnergyProvided()-p.getElectricEnergyProposal());
 			ThermalEngineAgent.this.engine.updateTank();
 			System.out.println(ThermalEngineAgent.this.getName()+" energy : "+ThermalEngineAgent.this.getEnergyProvided());
 		}

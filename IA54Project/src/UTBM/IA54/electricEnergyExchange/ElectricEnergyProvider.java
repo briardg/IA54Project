@@ -55,7 +55,7 @@ public class ElectricEnergyProvider extends Role {
 	public Status activate(Object... params) {
 		this.state = State.WAITING_REQUEST;
 		
-		System.out.println(this.getPlayer().getName()+" provider get initialized => waiting request");
+		System.out.println(this.getPlayer().getName()+" provider is initialized => waiting request");
 
 		return super.activate(params);
 	}
@@ -91,29 +91,14 @@ public class ElectricEnergyProvider extends Role {
 					for(Message m : this.getMessages(EnergyRequestMessage.class)) {
 						EnergyRequestMessage message = (EnergyRequestMessage)m;
 	
-						// Remove message send by this role itself (we can t treat a request sent by the role itself)
-						/*if(message.getRequest().getConsumer().getPlayer().getName() == this.getPlayer().getName()) {
-							messageToRemove.add(m);
-						} else {
-							requests.add(message.getRequest());
-							System.out.print(", "+message.getRequest().getConsumer().getPlayer().getName());
-							//messagesList.add(message);
-						}*/
-						
+						//Don't deal with this request if the sender is the receiver
 						if(message.getRequest().getConsumer().getPlayer().getName() != this.getPlayer().getName()) {
 							requests.add(message.getRequest());
 							System.out.print(", "+message.getRequest().getConsumer().getPlayer().getName());							
 						}
 					}
 					System.out.println("");
-					
-					/*
-					// Remove messages send by the role itself
-					for(Message m : messageToRemove) {
-						this.getMailbox().remove(m);				
-					}
-					*/
-										
+									
 					// if there is no request => WAITING_REQUEST state again
 					if(requests.size() == 0) {
 						return State.WAITING_REQUEST;
@@ -137,9 +122,6 @@ public class ElectricEnergyProvider extends Role {
 										System.out.println(this.getPlayer().getName()+" provider : Send proposal to :"+p.getRequest().getConsumer().getPlayer().getName());
 										this.sendMessage(request.getConsumer(), new ProposalEnergyMessage(p));
 		
-										// Remove request from the mailbox
-										//this.getMailbox().remove(this.findRequestMessageFromListAccordingToARequest(messagesList, request));
-										
 										return State.WAITING_ANSWER_PROPOSAL;
 									}
 								}
@@ -171,7 +153,7 @@ public class ElectricEnergyProvider extends Role {
 						// Consumer has accepted the proposal												
 						try {
 							// notice the agent that we have provided some energy to a consumer
-							this.executeCapacityCall(UpdateProviderAttrCapacity.class, proposal.getRequest());												
+							this.executeCapacityCall(UpdateProviderAttrCapacity.class, proposal);												
 						} catch (Throwable e) {
 							error(e.getLocalizedMessage());
 						}
@@ -195,7 +177,7 @@ public class ElectricEnergyProvider extends Role {
 	}
 	
 	/**
-	 * Find EnergyRequestMessage from an ArrayList of EnergyRequestMessage 
+	 * Find an EnergyRequestMessage from an ArrayList of EnergyRequestMessage 
 	 * according to a Request (an EnergyRequestMessage contents a Request)
 	 * @param messagesList ArrayList<EnergyRequestMessage>
 	 * @param request Request

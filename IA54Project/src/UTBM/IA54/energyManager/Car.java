@@ -1,11 +1,7 @@
 package UTBM.IA54.energyManager;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 
 import org.janusproject.kernel.Kernel;
-import org.janusproject.kernel.agent.Agent;
 
 import utbm.p13.tx52.battery.LithiumBattery;
 import utbm.p13.tx52.motor.ElectricMotor;

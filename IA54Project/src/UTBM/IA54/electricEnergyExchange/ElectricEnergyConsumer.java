@@ -37,8 +37,14 @@ public class ElectricEnergyConsumer extends Role {
 	private Request currentRequest;
 	private int counter = 0;
 	private int unitTimeToWait;
+	/**
+	 * Time needed by the consumer to received enough proposals
+	 */
 	private final int MAX_UNIT_TIME_TO_WAIT = 3;
-	private final int MAX_UNIT_TIME_TO_WAIT_PROPOSAL = 10;
+	/**
+	 * Max time to wait without receive proposals
+	 */
+	private final int MAX_UNIT_TIME_TO_WAIT_PROPOSAL = 2 * this.MAX_UNIT_TIME_TO_WAIT;
 
 	/**
 	 * 
@@ -62,7 +68,7 @@ public class ElectricEnergyConsumer extends Role {
 	public Status activate(Object... params) {
 		this.state = State.WAITING;
 
-		System.out.println(this.getPlayer().getName()+" consumer get initialized");
+		System.out.println(this.getPlayer().getName()+" consumer is initialized");
 
 		return super.activate(params);
 	}
@@ -120,44 +126,43 @@ public class ElectricEnergyConsumer extends Role {
 				List<Proposal> proposalsUpToDate = new ArrayList<Proposal>();
 				// This list will content all expired proposal (these proposals answer to an old request)
 				List<Message> proposalsExpired = new ArrayList<Message>();
-				
+
 				// get messages from providers			
-				for(Message m : this.getMessages()) {
-					if(m instanceof ProposalEnergyMessage) {
-						Proposal p = ((ProposalEnergyMessage)m).getProposal();
-						proposals.add(p);
-						if(this.currentRequest.equals(p.getRequest())) {
-							// Put only proposals which response to the current request
-							proposalsUpToDate.add(p);
-						} else {
-							// Else put them to this list. They will be removed because they are expired
-							proposalsExpired.add(m);
-						}
+				for(Message m : this.getMessages(ProposalEnergyMessage.class)) {
+					Proposal p = ((ProposalEnergyMessage)m).getProposal();
+					proposals.add(p);
+					if(this.currentRequest.equals(p.getRequest())) {
+						// Put only proposals which response to the current request
+						proposalsUpToDate.add(p);
+					} else {
+						// Else put them to this list. They will be removed because they are expired
+						proposalsExpired.add(m);
 					}
 				}		
 											
 				if(proposalsUpToDate.size() > 0) {
 					try {
-						CapacityContext cc = this.executeCapacityCall(FindBestProposalCapacity.class, proposalsUpToDate.toArray());
-						
+						CapacityContext cc = this.executeCapacityCall(FindBestProposalCapacity.class, proposalsUpToDate);
+
 						if(cc.isResultAvailable()) {
-							// Get best proposal
-							ArrayList<Proposal> props = (ArrayList<Proposal>)cc.getOutputValueAt(0);
+							// Get best proposals
+							ArrayList<Proposal> bestProposals = (ArrayList<Proposal>)cc.getOutputValueAt(0);
 							
 							System.out.print(this.getPlayer().getName()+" consumer: number of proposals : "+proposalsUpToDate.size()+", best proposal from: ");
 							
-							for(Proposal a : props)
+							for(Proposal a : bestProposals)
 								System.out.print(a.getProvider().getPlayer().getName());
 							
 							System.out.println();
 							
-							// send answer to all providers
+							// Send positive answer to providers
+							for(Proposal prop : bestProposals) {
+								this.sendMessage(prop.getProvider(), new ProposalFinalizedEnergyMessage(new ProposalFinalized(prop)));
+							}
+							
+							// Send negative answer to providers
 							for(Proposal prop : proposals) {
-								if(props.contains(prop)) {
-									// positive answer
-									this.sendMessage(prop.getProvider(), new ProposalFinalizedEnergyMessage(new ProposalFinalized(prop)));
-								} else {
-									// negative answer
+								if(!bestProposals.contains(prop)) {
 									this.sendMessage(prop.getProvider(), new ProposalFinalizedEnergyMessage(new ProposalFinalized(null)));
 								}
 							}
@@ -166,7 +171,6 @@ public class ElectricEnergyConsumer extends Role {
 						error(e.getLocalizedMessage());
 						return State.WAITING;
 					}	
-
 					return State.WAITING;
 				}
 				

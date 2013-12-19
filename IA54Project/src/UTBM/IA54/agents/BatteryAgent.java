@@ -52,7 +52,7 @@ public class BatteryAgent extends Agent{
 	public BatteryAgent(Car c, AbstractBattery b) {
 		this.energyStored = 0;
 		this.car = c;
-		this.battery=b;
+		this.battery = b;
 	}
 	
 	@Override
@@ -70,12 +70,10 @@ public class BatteryAgent extends Agent{
 
 		// Add some roles to the group
 		if(ga != null) {
-			// Send energy stored
 			if(requestRole(ElectricEnergyProvider.class, ga) == null) {
 				return StatusFactory.cancel(this);
 			}
 			
-			// Received energy 
 			if(requestRole(ElectricEnergyConsumer.class, ga) == null) {
 				return StatusFactory.cancel(this);
 			}
@@ -139,10 +137,10 @@ public class BatteryAgent extends Agent{
 			// TODO behavior done
 			
 			Request request = (Request)call.getInputValues()[0];
-			BatteryAgent.this.energyStored=BatteryAgent.this.battery.getMaxDisChargePower();
+			BatteryAgent.this.energyStored = BatteryAgent.this.battery.getMaxDisChargePower();
 			
-			if(request.getElectricEnergyRequest()<BatteryAgent.this.energyStored)
-				BatteryAgent.this.energyStored=request.getElectricEnergyRequest();
+			if(request.getElectricEnergyRequest() < BatteryAgent.this.energyStored)
+				BatteryAgent.this.energyStored = request.getElectricEnergyRequest();
 			
 			Proposal proposal = new Proposal(BatteryAgent.this.energyStored, request);
 			call.setOutputValues(proposal);
@@ -213,21 +211,19 @@ public class BatteryAgent extends Agent{
 				@Override
 				public int compare(Proposal p1, Proposal p2) {
 					
-					if(p1.getElectricEnergyProposal()>p2.getElectricEnergyProposal())
+					if(p1.getElectricEnergyProposal() > p2.getElectricEnergyProposal())
 						return -1;
-					else if(p1.getElectricEnergyProposal()==p2.getElectricEnergyProposal())
+					else if(p1.getElectricEnergyProposal() == p2.getElectricEnergyProposal())
 						return 0;
 					else
 						return 1;
-				}
-				
+				}				
 			});
-			
-			
-			double value=0;
+						
+			double value = 0;
 			for(Proposal p : proposalList){
 				if(p.getElectricEnergyProposal()+value<=p.getRequest().getElectricEnergyRequest()){
-					value+=p.getElectricEnergyProposal();
+					value += p.getElectricEnergyProposal();
 					best.add(p);
 				}
 			}
@@ -261,10 +257,10 @@ public class BatteryAgent extends Agent{
 		public void call(CapacityContext call) throws Exception {
 			// TODO behavior done
 			
-		//	Request r = (Request)call.getInputValues()[0];
-		//	BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored()-r.getElectricEnergyRequest());
+			//Proposal p = (Proposal)call.getInputValues()[0];
+			//BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored() - p.getElectricEnergyProposal());
 			BatteryAgent.this.battery.setCurrentCapacityByUsing(BatteryAgent.this.energyStored);
-			BatteryAgent.this.energyStored=0;
+			BatteryAgent.this.energyStored = 0;
 			System.out.println(BatteryAgent.this.getName()+"provider : "+BatteryAgent.this.getEnergyStored());
 		}
 	}

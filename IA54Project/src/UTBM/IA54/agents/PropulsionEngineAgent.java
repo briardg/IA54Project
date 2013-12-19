@@ -1,7 +1,6 @@
 package UTBM.IA54.agents;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -162,8 +161,9 @@ public class PropulsionEngineAgent extends Agent {
 			
 			ArrayList<Proposal> best = new ArrayList<Proposal>();
 
-			ArrayList<Proposal> proposalList = (ArrayList<Proposal>) Arrays.asList((Proposal[])call.getInputValues());
-			 
+			ArrayList<Proposal> proposalList = (ArrayList<Proposal>)call.getInputValues()[0];	
+
+			
 			Collections.sort(proposalList, new Comparator<Proposal>() {
 
 				@Override
@@ -178,20 +178,19 @@ public class PropulsionEngineAgent extends Agent {
 				}
 				
 			});
+
 			
-			
-			double value=0;
+			double value = 0;
 			for(Proposal p : proposalList){
-				if(p.getElectricEnergyProposal()+value<=p.getRequest().getElectricEnergyRequest()){
-					value+=p.getElectricEnergyProposal();
+				if(p.getElectricEnergyProposal()+value <= p.getRequest().getElectricEnergyRequest()){
+					value += p.getElectricEnergyProposal();
 					best.add(p);
 				}
 			}
 			
-			if(best != null)
+			//if(best != null)
 				call.setOutputValues(best);
 						
-			
 			PropulsionEngineAgent.this.setEnergyConsume(value);
 			
 			System.out.println(PropulsionEngineAgent.this.getName()+" consumer, enery : "+PropulsionEngineAgent.this.getEnergyConsume()+", proposal accepted : "+best);

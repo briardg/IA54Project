@@ -120,8 +120,8 @@ public class SRECAgent extends Agent {
 			
 			Request request = (Request)call.getInputValues()[0];
 			double v = request.getElectricEnergyRequest();
-			if(v>SRECAgent.this.energyProvided)
-				v=SRECAgent.this.energyProvided;
+			if(v > SRECAgent.this.energyProvided)
+				v = SRECAgent.this.energyProvided;
 			
 			Proposal proposal = new Proposal(v, request);
 			call.setOutputValues(proposal);
@@ -148,8 +148,8 @@ public class SRECAgent extends Agent {
 		public void call(CapacityContext call) throws Exception {
 			// TODO Behavior done
 			
-			Request r = (Request)call.getInputValues()[0];
-			double v = SRECAgent.this.getEnergyProvided()-r.getElectricEnergyRequest();
+			Proposal p = (Proposal)call.getInputValues()[0];
+			double v = SRECAgent.this.getEnergyProvided() - p.getElectricEnergyProposal();
 			
 			SRECAgent.this.setEnergyProvided(v);
 			System.out.println(SRECAgent.this.getName()+" energy : "+SRECAgent.this.getEnergyProvided());
