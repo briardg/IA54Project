@@ -16,7 +16,7 @@ import UTBM.IA54.capacity.FindBestRequestCapacity;
 import UTBM.IA54.capacity.Proposal;
 import UTBM.IA54.capacity.Request;
 import UTBM.IA54.capacity.UpdateProviderAttrCapacity;
-import UTBM.IA54.message.EnergyRequestMessage;
+import UTBM.IA54.message.RequestEnergyMessage;
 import UTBM.IA54.message.ProposalEnergyMessage;
 import UTBM.IA54.message.ProposalFinalizedEnergyMessage;
 
@@ -88,8 +88,8 @@ public class ElectricEnergyProvider extends Role {
 					
 					System.out.print(this.getPlayer().getName()+" provider : request list received from :");
 					// look at the mailbox
-					for(Message m : this.getMessages(EnergyRequestMessage.class)) {
-						EnergyRequestMessage message = (EnergyRequestMessage)m;
+					for(Message m : this.getMessages(RequestEnergyMessage.class)) {
+						RequestEnergyMessage message = (RequestEnergyMessage)m;
 	
 						//Don't deal with this request if the sender is the receiver
 						if(message.getRequest().getConsumer().getPlayer().getName() != this.getPlayer().getName()) {
@@ -183,11 +183,11 @@ public class ElectricEnergyProvider extends Role {
 	 * @param request Request
 	 * @return EnergyRequestMessage found
 	 */
-	private EnergyRequestMessage findRequestMessageFromListAccordingToARequest(ArrayList<EnergyRequestMessage> messagesList, Request request) {
-		EnergyRequestMessage requestMessage = null;
+	private RequestEnergyMessage findRequestMessageFromListAccordingToARequest(ArrayList<RequestEnergyMessage> messagesList, Request request) {
+		RequestEnergyMessage requestMessage = null;
 
-		for(EnergyRequestMessage m : messagesList) {
-			if(request.equals(((EnergyRequestMessage)m).getRequest())) {
+		for(RequestEnergyMessage m : messagesList) {
+			if(request.equals(((RequestEnergyMessage)m).getRequest())) {
 				requestMessage = m;
 				break;
 			}

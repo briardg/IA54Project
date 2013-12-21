@@ -16,7 +16,7 @@ import UTBM.IA54.capacity.FindBestProposalCapacity;
 import UTBM.IA54.capacity.Proposal;
 import UTBM.IA54.capacity.ProposalFinalized;
 import UTBM.IA54.capacity.Request;
-import UTBM.IA54.message.EnergyRequestMessage;
+import UTBM.IA54.message.RequestEnergyMessage;
 import UTBM.IA54.message.ProposalEnergyMessage;
 import UTBM.IA54.message.ProposalFinalizedEnergyMessage;
 
@@ -112,7 +112,7 @@ public class ElectricEnergyConsumer extends Role {
 			
 		case SEND_ENERGY_REQUEST:
 			// Send request to all electric energy providers
-			this.broadcastMessage(ElectricEnergyProvider.class, new EnergyRequestMessage(this.currentRequest));
+			this.broadcastMessage(ElectricEnergyProvider.class, new RequestEnergyMessage(this.currentRequest));
 			
 			System.out.println(this.getPlayer().getName()+" consumer : request sent => Waiting proposal");
 			

@@ -9,7 +9,7 @@ import UTBM.IA54.capacity.Request;
  * @author Anthony
  *
  */
-public class EnergyRequestMessage extends ObjectMessage {
+public class RequestEnergyMessage extends ObjectMessage {
 	
 	/**
 	 * 
@@ -20,7 +20,7 @@ public class EnergyRequestMessage extends ObjectMessage {
 	 * 
 	 * @param request the request
 	 */
-	public EnergyRequestMessage(Request request) {
+	public RequestEnergyMessage(Request request) {
 		super(request);
 	}
 	
