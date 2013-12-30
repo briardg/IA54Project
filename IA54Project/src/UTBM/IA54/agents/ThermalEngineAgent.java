@@ -41,9 +41,9 @@ public class ThermalEngineAgent extends Agent{
 	 * 
 	 * @param c the car
 	 */
-	public ThermalEngineAgent(Car c, Engine e) {
+	public ThermalEngineAgent(Car c) {
 		this.car = c;
-		this.engine = e;
+		this.engine = c.getV().getEngine();
 		this.energyProvided = 0.0;
 	}
 		
@@ -117,10 +117,10 @@ public class ThermalEngineAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done with optimalPower could change with specifics values
 			
 			Request request = (Request)call.getInputValues()[0];
 			
+			//get OptimalPower only for the moment
 			Proposal proposal = new Proposal(ThermalEngineAgent.this.engine.getOptimalPower(), request);
 			call.setOutputValues(proposal);
 		}
@@ -143,10 +143,11 @@ public class ThermalEngineAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done just by updated tank
 			
 			//Proposal p = (Proposal)call.getInputValues()[0];
 			//ThermalEngineAgent.this.setEnergyProvided(ThermalEngineAgent.this.getEnergyProvided()-p.getElectricEnergyProposal());
+			
+			//just need toUpdate the Tank from the optimalPower
 			ThermalEngineAgent.this.engine.updateTank();
 			System.out.println(ThermalEngineAgent.this.getName()+" energy : "+ThermalEngineAgent.this.getEnergyProvided());
 		}

@@ -3,9 +3,9 @@ import java.util.HashMap;
 
 import org.janusproject.kernel.Kernel;
 
-import utbm.p13.tx52.battery.LithiumBattery;
-import utbm.p13.tx52.motor.ElectricMotor;
-import utbm.p13.tx52.motor.Engine;
+
+import utbm.p13.tx52.vehicle.AbstractHybridVehicle;
+import utbm.p13.tx52.vehicle.SeriesHybridVehicle;
 import UTBM.IA54.agents.BatteryAgent;
 import UTBM.IA54.agents.PropulsionEngineAgent;
 import UTBM.IA54.agents.SRECAgent;
@@ -21,17 +21,19 @@ public class Car {
 	private PropulsionEngineAgent propulsion;
 	private Kernel kernel;
 	
+	private AbstractHybridVehicle v = new SeriesHybridVehicle();
+	
 	
 	public Car(double pos, Kernel k) {
 		this.position = pos;
 		this.kernel = k;
 		
-		this.battery = new BatteryAgent(this,new LithiumBattery(12, 1000));
-		this.te = new ThermalEngineAgent(this,new Engine(60,0.75,0.195,200));
-		this.propulsion = new PropulsionEngineAgent(this,new ElectricMotor(0.5, 2, 0.5, 1000, 0.04, 14,0));
+		this.battery = new BatteryAgent(this);
+		this.te = new ThermalEngineAgent(this);
+		this.propulsion = new PropulsionEngineAgent(this);
 		this.srec = new SRECAgent(this);
 	}
-
+	
 	public double getPosition() {
 		return this.position;
 	}		
@@ -92,4 +94,14 @@ public class Car {
 		PROPULSION_ENGINE,
 		SREC
 	}
+
+	public AbstractHybridVehicle getV() {
+		return v;
+	}
+
+	public void setV(AbstractHybridVehicle v) {
+		this.v = v;
+	}
+	
+	
 }

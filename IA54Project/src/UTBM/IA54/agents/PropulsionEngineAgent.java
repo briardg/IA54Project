@@ -53,9 +53,9 @@ public class PropulsionEngineAgent extends Agent {
 	 * Default constructor
 	 * @param c car
 	 */
-	public PropulsionEngineAgent(Car c, ElectricMotor em) {
+	public PropulsionEngineAgent(Car c) {
 		this.car = c;
-		this.electricMotor=em;
+		this.electricMotor=c.getV().getElectricMotor();
 	}
 	
 	@Override
@@ -157,12 +157,12 @@ public class PropulsionEngineAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done
 			
 			ArrayList<Proposal> best = new ArrayList<Proposal>();
 
 			ArrayList<Proposal> proposalList = (ArrayList<Proposal>)call.getInputValues()[0];	
 
+			//order proposal by energy value
 			
 			Collections.sort(proposalList, new Comparator<Proposal>() {
 
@@ -179,7 +179,7 @@ public class PropulsionEngineAgent extends Agent {
 				
 			});
 
-			
+
 			double value = 0;
 			for(Proposal p : proposalList){
 				if(p.getElectricEnergyProposal()+value <= p.getRequest().getElectricEnergyRequest()){
@@ -189,7 +189,7 @@ public class PropulsionEngineAgent extends Agent {
 			}
 			
 			//if(best != null)
-				call.setOutputValues(best);
+			call.setOutputValues(best);
 						
 			PropulsionEngineAgent.this.setEnergyConsume(value);
 			
@@ -213,9 +213,9 @@ public class PropulsionEngineAgent extends Agent {
 		
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done
-			// TODO should calculateThePorwer from the server
-			// create a Request according to the needed of energy
+			
+			// calculate The Power from the server values
+			PropulsionEngineAgent.this.electricMotor.calculatePowerFromAngularVelocityAndTorque(PropulsionEngineAgent.this.car.getV().getReceiver().getAngularVelocity(), PropulsionEngineAgent.this.car.getV().getReceiver().getTorque());
 			Request request = new Request(PropulsionEngineAgent.this.electricMotor.getCurrentPower(), Request.Priority.VERY_HIGH);
 			call.setOutputValues(request);
 		}
@@ -236,9 +236,12 @@ public class PropulsionEngineAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior need to be send to the server
-			PropulsionEngineAgent.this.setTorqueProvided(PropulsionEngineAgent.this.getEnergyConsume());
-			PropulsionEngineAgent.this.setEnergyConsume(0.0);
+			// send to the server the new torque
+			
+			if(PropulsionEngineAgent.this.electricMotor.getCurrentPower()!=0.0)
+	            PropulsionEngineAgent.this.car.getV().getSender().setTorque(PropulsionEngineAgent.this.electricMotor.getCurrentPower()/PropulsionEngineAgent.this.electricMotor.getAngularVelocity());
+	        else
+	        	PropulsionEngineAgent.this.car.getV().getSender().setTorque(0.0);
 			
 			System.out.println(PropulsionEngineAgent.this.getName()+" : "+PropulsionEngineAgent.this.getTorqueProvided());
 		}

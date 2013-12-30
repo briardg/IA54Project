@@ -1,13 +1,19 @@
 package UTBM.IA54.energyManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Timer;
 import java.util.logging.Level;
 
 import org.janusproject.kernel.Kernel;
 import org.janusproject.kernel.agent.Kernels;
 import org.janusproject.kernel.logger.LoggerUtil;
 
-import utbm.p13.tx52.To52;
+import UTBM.IA54.view.IAView;
+import utbm.p13.tx52.connection.Servers;
+import utbm.p13.tx52.vehicle.AbstractHybridVehicle;
+
 
 public class Main {
 	public static void main(String[] args) {
@@ -43,7 +49,19 @@ public class Main {
 		car2.getSrec().setEnergyProvided(10.0);
 		car2.getTe().setEnergyProvided(0.0);
 		
+		//creation of the servers for the vivus connection
+		List<AbstractHybridVehicle> vList = new ArrayList<>();
+		vList.add(car1.getV());
+		vList.add(car2.getV());
+		Servers servers = new Servers(vList);
+        servers.start();
+		
 		car1.launch(agentNames1);
 		car2.launch(agentNames2);
+		
+		//IA View update by TimerTask
+		Timer t = new Timer("IA");
+        t.schedule(new IAView(vList),0,1);
+		
 	}
 }
