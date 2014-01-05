@@ -66,7 +66,7 @@ public class PropulsionEngineAgent extends Agent {
 		CapacityContainer cc = getCapacityContainer();
 		cc.addCapacity(new ComputeTorqueCapacityImpl());
 		cc.addCapacity(new ComputeRequestPECapacityImpl());
-		cc.addCapacity(new FindBestProposalPECapacityImpl());
+		cc.addCapacity(new FindBestProposalCapacityImpl());
 		// get group
 
 		GroupAddress ga = this.getOrCreateGroup(ElectricEnergyExchangeOrganization.class);
@@ -147,11 +147,11 @@ public class PropulsionEngineAgent extends Agent {
 	 * @author Anthony
 	 *
 	 */
-	private class FindBestProposalPECapacityImpl
+	private class FindBestProposalCapacityImpl
 	extends CapacityImplementation
 	implements FindBestProposalCapacity {
 		
-		public FindBestProposalPECapacityImpl() {
+		public FindBestProposalCapacityImpl() {
 			super(CapacityImplementationType.DIRECT_ACTOMIC);
 		}
 
@@ -216,7 +216,7 @@ public class PropulsionEngineAgent extends Agent {
 			
 			// calculate The Power from the server values
 			PropulsionEngineAgent.this.electricMotor.calculatePowerFromAngularVelocityAndTorque(PropulsionEngineAgent.this.car.getV().getReceiver().getAngularVelocity(), PropulsionEngineAgent.this.car.getV().getReceiver().getTorque());
-			Request request = new Request(PropulsionEngineAgent.this.electricMotor.getCurrentPower(), Request.Priority.VERY_HIGH);
+			Request request = new Request(PropulsionEngineAgent.this.electricMotor.getCurrentPower(), Request.Priority.VERY_HIGH, PropulsionEngineAgent.this.car.getPosition());
 			call.setOutputValues(request);
 		}
 	}
@@ -236,6 +236,7 @@ public class PropulsionEngineAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
+			
 			// send to the server the new torque
 			
 			if(PropulsionEngineAgent.this.electricMotor.getCurrentPower()!=0.0)

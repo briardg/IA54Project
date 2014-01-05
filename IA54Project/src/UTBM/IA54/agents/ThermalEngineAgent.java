@@ -1,5 +1,8 @@
 package UTBM.IA54.agents;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.janusproject.kernel.agent.Agent;
 import org.janusproject.kernel.crio.capacity.CapacityContainer;
 import org.janusproject.kernel.crio.capacity.CapacityContext;
@@ -11,7 +14,7 @@ import org.janusproject.kernel.status.StatusFactory;
 
 import utbm.p13.tx52.motor.Engine;
 import UTBM.IA54.capacity.ComputeProposalCapacity;
-import UTBM.IA54.capacity.FindBestRequestCapacityImpl;
+import UTBM.IA54.capacity.FindBestRequestCapacity;
 import UTBM.IA54.capacity.Proposal;
 import UTBM.IA54.capacity.Request;
 import UTBM.IA54.capacity.UpdateProviderAttrCapacity;
@@ -127,6 +130,65 @@ public class ThermalEngineAgent extends Agent{
 	}
 	
 	/**
+	 * Implementation of {@link FindBestRequestCapacity}. Defines how find the best request from a list
+	 * of requests
+	 * @author Anthony
+	 *
+	 */
+	private class FindBestRequestCapacityImpl
+	extends CapacityImplementation
+	implements FindBestRequestCapacity {
+		
+		public FindBestRequestCapacityImpl() {
+			super(CapacityImplementationType.DIRECT_ACTOMIC);
+		}
+
+		@Override
+		public void call(CapacityContext call) throws Exception {
+			
+			ArrayList<Request> requests = (ArrayList<Request>)call.getInputValues()[0];	
+			List<Request> bestrlist = new ArrayList<>();
+			Request bestr = null;
+			
+			//get the request with the higher priority
+			for(Request r : requests){
+				if(bestr == null){
+					bestr = r;
+				}else if(r.getPriority().ordinal() > bestr.getPriority().ordinal()){
+						bestr = r;
+				}
+			}
+			
+			//get all request with the same priority than the best
+			for(Request r : requests){
+				if(bestr.getPriority().ordinal() == r.getPriority().ordinal()){
+					bestrlist.add(r);
+				}
+			}
+			
+			//if list more than 1 get the closest best request
+			if(bestrlist.size()>1){
+				bestr=null;
+				for(Request r : bestrlist){
+					if(bestr == null){
+						bestr = r;
+					}else if(Math.abs(r.getPosition()-ThermalEngineAgent.this.car.getPosition()) < Math.abs(bestr.getPosition()-ThermalEngineAgent.this.car.getPosition())){
+							bestr = r;
+					}
+				}
+			// else get the best request
+			}else{
+				bestr=bestrlist.get(1);
+			}
+			
+			//return best request
+			call.setOutputValues(bestr);
+		}
+
+	}
+
+	
+	/**
 	 * Inner class, update some attributes of the agent
 	 * @author Anthony
 	 *
@@ -143,6 +205,7 @@ public class ThermalEngineAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
+			
 			
 			//Proposal p = (Proposal)call.getInputValues()[0];
 			//ThermalEngineAgent.this.setEnergyProvided(ThermalEngineAgent.this.getEnergyProvided()-p.getElectricEnergyProposal());

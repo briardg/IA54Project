@@ -28,16 +28,22 @@ public class Request {
 	private Priority priority;
 	
 	/**
+	 * position of the request sender
+	 */
+	private double position;
+	
+	/**
 	 * 
 	 * @param roleConsumer
 	 * @param energyQuantity
 	 * @param requestPriority
 	 */
-	public Request(RoleAddress roleConsumer, double energyQuantity, Priority requestPriority) {
+	public Request(RoleAddress roleConsumer, double energyQuantity, Priority requestPriority, double position) {
 		this.consumer = roleConsumer;
 		this.electricEnergyRequest = energyQuantity;
 		this.date = new Date();
 		this.priority = requestPriority;
+		this.position=position;
 	}
 	
 	/**
@@ -45,8 +51,8 @@ public class Request {
 	 * @param energyQuantity
 	 * @param requestPriority
 	 */
-	public Request(double energyQuantity, Priority requestPriority) {
-		this(null,energyQuantity,requestPriority);
+	public Request(double energyQuantity, Priority requestPriority, double position) {
+		this(null,energyQuantity,requestPriority,position);
 	}
 	
 
@@ -114,6 +120,15 @@ public class Request {
 		MEDIUM,
 		HIGH,
 		VERY_HIGH		
+	}
+	
+
+	/**
+	 * 
+	 * @return the position
+	 */
+	public double getPosition() {
+		return position;
 	}
 
 	@Override
