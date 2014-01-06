@@ -117,8 +117,6 @@ public class ThermalEngineAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done with optimalPower could change with specifics values
-			
 			Request request = (Request)call.getInputValues()[0];
 			
 			Proposal proposal = new Proposal(ThermalEngineAgent.this.engine.getOptimalPower(), request);
@@ -143,10 +141,6 @@ public class ThermalEngineAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done just by updated tank
-			
-			//Proposal p = (Proposal)call.getInputValues()[0];
-			//ThermalEngineAgent.this.setEnergyProvided(ThermalEngineAgent.this.getEnergyProvided()-p.getElectricEnergyProposal());
 			ThermalEngineAgent.this.engine.updateTank();
 			System.out.println(ThermalEngineAgent.this.getName()+" energy : "+ThermalEngineAgent.this.getEnergyProvided());
 		}

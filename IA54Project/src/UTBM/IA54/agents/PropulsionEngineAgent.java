@@ -157,8 +157,6 @@ public class PropulsionEngineAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done
-			
 			ArrayList<Proposal> best = new ArrayList<Proposal>();
 
 			ArrayList<Proposal> proposalList = (ArrayList<Proposal>)call.getInputValues()[0];	
@@ -213,8 +211,6 @@ public class PropulsionEngineAgent extends Agent {
 		
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done
-			// TODO should calculateThePorwer from the server
 			// create a Request according to the needed of energy
 			Request request = new Request(PropulsionEngineAgent.this.electricMotor.getCurrentPower(), Request.Priority.VERY_HIGH);
 			call.setOutputValues(request);
@@ -236,7 +232,6 @@ public class PropulsionEngineAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior need to be send to the server
 			PropulsionEngineAgent.this.setTorqueProvided(PropulsionEngineAgent.this.getEnergyConsume());
 			PropulsionEngineAgent.this.setEnergyConsume(0.0);
 			

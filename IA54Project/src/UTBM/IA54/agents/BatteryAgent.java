@@ -134,8 +134,6 @@ public class BatteryAgent extends Agent{
 		
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done
-			
 			Request request = (Request)call.getInputValues()[0];
 			BatteryAgent.this.energyStored = BatteryAgent.this.battery.getMaxDisChargePower();
 			
@@ -165,7 +163,6 @@ public class BatteryAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done
 			Priority p = Request.Priority.VERY_LOW;
 			if(BatteryAgent.this.battery.getPourcentageOfCharge()<20)
 				p=Request.Priority.VERY_HIGH;
@@ -200,8 +197,6 @@ public class BatteryAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done
-			
 			ArrayList<Proposal> best = new ArrayList<Proposal>();
 
 			ArrayList<Proposal> proposalList = (ArrayList<Proposal>) Arrays.asList((Proposal[])call.getInputValues());
@@ -255,10 +250,6 @@ public class BatteryAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO behavior done
-			
-			//Proposal p = (Proposal)call.getInputValues()[0];
-			//BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored() - p.getElectricEnergyProposal());
 			BatteryAgent.this.battery.setCurrentCapacityByUsing(BatteryAgent.this.energyStored);
 			BatteryAgent.this.energyStored = 0;
 			System.out.println(BatteryAgent.this.getName()+"provider : "+BatteryAgent.this.getEnergyStored());

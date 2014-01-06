@@ -22,8 +22,6 @@ implements FindBestRequestCapacity {
 
 	@Override
 	public void call(CapacityContext call) throws Exception {
-		// TODO behavior done only with priority
-		
 		ArrayList<Request> requests = (ArrayList<Request>)call.getInputValues()[0];	
 		Request bestr = null;
 		for(Request r : requests){
