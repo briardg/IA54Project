@@ -6,7 +6,7 @@ import org.janusproject.kernel.crio.core.RoleAddress;
 
 /**
  * A Request is sent by consumer to ask  proposals from providers
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class Request {
@@ -111,7 +111,7 @@ public class Request {
 
 	/**
 	 * Enum to define the priority of a request
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	public enum Priority {

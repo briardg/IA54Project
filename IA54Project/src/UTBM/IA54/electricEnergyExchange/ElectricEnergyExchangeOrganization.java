@@ -5,7 +5,7 @@ import org.janusproject.kernel.crio.core.Organization;
 
 /**
  * 
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class ElectricEnergyExchangeOrganization extends Organization {

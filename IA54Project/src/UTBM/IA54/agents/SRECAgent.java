@@ -23,7 +23,7 @@ import UTBM.IA54.energyManager.Car;
 
 /**
  * SREC Agent
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class SRECAgent extends Agent {
@@ -103,7 +103,7 @@ public class SRECAgent extends Agent {
 	/****************************************************************/
 	/**
 	 * Inner class, defines how to compute a Proposal according to a Request
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class ComputeProposalSRECCapacityImpl 
@@ -135,7 +135,7 @@ public class SRECAgent extends Agent {
 	/**
 	 * Implementation of {@link FindBestRequestCapacity}. Defines how find the best request from a list
 	 * of requests
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	public class FindBestRequestCapacityImpl
@@ -194,7 +194,7 @@ public class SRECAgent extends Agent {
 	
 	/**
 	 * Inner class, Update some attributes of the agent
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class UpdateProviderAttrSRECCapacityImpl 

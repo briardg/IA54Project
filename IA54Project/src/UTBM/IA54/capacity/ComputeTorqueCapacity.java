@@ -4,7 +4,7 @@ import org.janusproject.kernel.crio.capacity.Capacity;
 
 /**
  * Defines how compute torque according to electric energy consumed
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public interface ComputeTorqueCapacity extends Capacity{

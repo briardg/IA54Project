@@ -22,7 +22,7 @@ import UTBM.IA54.message.ProposalFinalizedEnergyMessage;
 
 /**
  * Role which defines the behavior of a Provider of electric energy
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class ElectricEnergyProvider extends Role {
@@ -197,7 +197,7 @@ public class ElectricEnergyProvider extends Role {
 
 	/**
 	 * Enum contenting the different states of the role
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private enum State {

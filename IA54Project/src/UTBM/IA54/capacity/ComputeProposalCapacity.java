@@ -4,7 +4,7 @@ import org.janusproject.kernel.crio.capacity.Capacity;
 
 /**
  * Defines how compute a proposal according to a Request
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public interface ComputeProposalCapacity extends Capacity {

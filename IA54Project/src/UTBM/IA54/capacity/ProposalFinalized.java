@@ -2,7 +2,7 @@ package UTBM.IA54.capacity;
 
 /**
  * ProposalFinalized object is an answer to a proposal given by the consumer to a provider
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class ProposalFinalized {

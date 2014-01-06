@@ -24,7 +24,7 @@ import UTBM.IA54.energyManager.Car;
 
 /**
  * Thermal engine agent
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class ThermalEngineAgent extends Agent{
@@ -104,7 +104,7 @@ public class ThermalEngineAgent extends Agent{
 	/****************************************************************/
 	/**
 	 * Inner class,  defines how to compute a Proposal according to a request
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class ComputeProposalTECapacityImpl 
@@ -132,7 +132,7 @@ public class ThermalEngineAgent extends Agent{
 	/**
 	 * Implementation of {@link FindBestRequestCapacity}. Defines how find the best request from a list
 	 * of requests
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class FindBestRequestCapacityImpl
@@ -190,7 +190,7 @@ public class ThermalEngineAgent extends Agent{
 	
 	/**
 	 * Inner class, update some attributes of the agent
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class UpdateProviderAttrTECapacityImpl 

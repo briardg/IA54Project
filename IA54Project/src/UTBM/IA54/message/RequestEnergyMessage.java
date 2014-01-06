@@ -6,7 +6,7 @@ import UTBM.IA54.capacity.Request;
 
 /**
  * Message contenting a {@link Request}
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class RequestEnergyMessage extends ObjectMessage {

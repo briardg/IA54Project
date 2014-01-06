@@ -5,7 +5,7 @@ import org.janusproject.kernel.crio.core.RoleAddress;
 /**
  * Proposal class defines an answer to a Request which contents the quantity of energy which could
  * be provided, the RoleAddress of the Provider and the request.
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class Proposal {

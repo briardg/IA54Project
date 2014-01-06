@@ -5,7 +5,7 @@ import org.janusproject.kernel.crio.capacity.Capacity;
 /**
  * Defines how update some agent's attributes after the consumer accepted the proposal of 
  * this provider
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public interface UpdateProviderAttrCapacity extends Capacity {

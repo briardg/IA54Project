@@ -31,7 +31,7 @@ import UTBM.IA54.energyManager.Car;
 
 /**
  * Define a battery Agent
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class BatteryAgent extends Agent{
@@ -119,7 +119,7 @@ public class BatteryAgent extends Agent{
 	/**
 	 * Inner class, defines a capacity computing electric energy which could be provided
 	 * according to a request. Return a proposal.
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class ComputeProposalBatteryCapacityImpl 
@@ -148,7 +148,7 @@ public class BatteryAgent extends Agent{
 	
 	/**
 	 * Inner class, defines a capacity computing the electric energy needed.
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class ComputeRequestBatteryCapacityImpl
@@ -182,7 +182,7 @@ public class BatteryAgent extends Agent{
 	
 	/**
 	 * Inner class, defines a capacity finding the best proposal according to a list given
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class FindBestProposalCapacityImpl
@@ -237,7 +237,7 @@ public class BatteryAgent extends Agent{
 	/**
 	 * Implementation of {@link FindBestRequestCapacity}. Defines how find the best request from a list
 	 * of requests
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class FindBestRequestCapacityImpl
@@ -296,7 +296,7 @@ public class BatteryAgent extends Agent{
 
 	/**
 	 * Inner class, update some attributes of the agent
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class UpdateProviderAttrBatteryCapacityImpl 
@@ -316,8 +316,8 @@ public class BatteryAgent extends Agent{
 			//Proposal p = (Proposal)call.getInputValues()[0];
 			//BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored() - p.getElectricEnergyProposal());
 			BatteryAgent.this.battery.setCurrentCapacityByUsing(BatteryAgent.this.energyStored);
-			BatteryAgent.this.energyStored = 0;
 			System.out.println(BatteryAgent.this.getName()+"provider : "+BatteryAgent.this.getEnergyStored());
+			BatteryAgent.this.energyStored = 0;
 		}
 	}
 }

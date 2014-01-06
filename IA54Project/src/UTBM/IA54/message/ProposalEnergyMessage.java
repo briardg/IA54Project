@@ -6,7 +6,7 @@ import UTBM.IA54.capacity.Proposal;
 
 /**
  * Message contenting a {@link Proposal}
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class ProposalEnergyMessage extends ObjectMessage{

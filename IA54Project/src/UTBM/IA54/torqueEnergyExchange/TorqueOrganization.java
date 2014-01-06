@@ -6,7 +6,7 @@ import org.janusproject.kernel.crio.core.Organization;
 /**
  * Torque organization. Defines how providers produce torque, and defines how consumers
  * consume torque
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class TorqueOrganization extends Organization {

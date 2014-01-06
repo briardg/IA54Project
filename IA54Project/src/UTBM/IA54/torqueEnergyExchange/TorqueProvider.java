@@ -9,7 +9,7 @@ import UTBM.IA54.capacity.ComputeTorqueCapacity;
 
 /**
  * Torque provider
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class TorqueProvider extends Role {
@@ -57,7 +57,7 @@ public class TorqueProvider extends Role {
 
 	/**
 	 * Enum which defines states of the role
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private enum State {

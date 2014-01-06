@@ -4,7 +4,7 @@ import org.janusproject.kernel.agent.Agent;
 
 /**
  * This static class compute loss in energy when electric energy is transfered 
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class ComputeLossEnergy {

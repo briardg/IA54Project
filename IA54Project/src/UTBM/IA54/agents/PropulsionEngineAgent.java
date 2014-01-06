@@ -25,7 +25,7 @@ import UTBM.IA54.energyManager.Car;
 
 /**
  * Propulsion engine agent
- * @author Anthony
+ * @author Anthony et Gautier
  *
  */
 public class PropulsionEngineAgent extends Agent {
@@ -144,7 +144,7 @@ public class PropulsionEngineAgent extends Agent {
 	/**
 	 * Inner class, defines a capacity finding the best proposal
 	 * according to a list
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class FindBestProposalCapacityImpl
@@ -200,7 +200,7 @@ public class PropulsionEngineAgent extends Agent {
 	/**
 	 * Inner class, defines a capacity computing the electric energy needed 
 	 * by the agent
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class ComputeRequestPECapacityImpl
@@ -223,7 +223,7 @@ public class PropulsionEngineAgent extends Agent {
 	
 	/**
 	 * Inner class, defines a capacity computing the torque provided
-	 * @author Anthony
+	 * @author Anthony et Gautier
 	 *
 	 */
 	private class ComputeTorqueCapacityImpl 
