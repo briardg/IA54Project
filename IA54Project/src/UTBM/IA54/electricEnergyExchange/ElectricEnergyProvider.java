@@ -80,12 +80,8 @@ public class ElectricEnergyProvider extends Role {
 				this.unitTimeToWait = 0;
 				
 				ArrayList<Request> requests = new ArrayList<Request>();
-				//ArrayList<EnergyRequestMessage> messagesList = new ArrayList<EnergyRequestMessage>();
-				//ArrayList<Message> messageToRemove = new ArrayList<Message>();
 				
 				if(this.hasMessage()) {		
-					//Mailbox mailBox = this.getMailbox();
-					
 					System.out.print(this.getPlayer().getName()+" provider : request list received from :");
 					// look at the mailbox
 					for(Message m : this.getMessages(RequestEnergyMessage.class)) {

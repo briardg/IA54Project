@@ -120,7 +120,6 @@ public class ThermalEngineAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			
 			Request request = (Request)call.getInputValues()[0];
 			
 			//get OptimalPower only for the moment
@@ -205,12 +204,7 @@ public class ThermalEngineAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			
-			
-			//Proposal p = (Proposal)call.getInputValues()[0];
-			//ThermalEngineAgent.this.setEnergyProvided(ThermalEngineAgent.this.getEnergyProvided()-p.getElectricEnergyProposal());
-			
-			//just need toUpdate the Tank from the optimalPower
+
 			ThermalEngineAgent.this.engine.updateTank();
 			System.out.println(ThermalEngineAgent.this.getName()+" energy : "+ThermalEngineAgent.this.getEnergyProvided());
 		}

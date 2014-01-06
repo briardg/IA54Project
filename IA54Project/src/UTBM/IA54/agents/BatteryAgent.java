@@ -312,9 +312,7 @@ public class BatteryAgent extends Agent{
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			
-			//Proposal p = (Proposal)call.getInputValues()[0];
-			//BatteryAgent.this.setEnergyStored(BatteryAgent.this.getEnergyStored() - p.getElectricEnergyProposal());
+
 			BatteryAgent.this.battery.setCurrentCapacityByUsing(BatteryAgent.this.energyStored);
 			System.out.println(BatteryAgent.this.getName()+"provider : "+BatteryAgent.this.getEnergyStored());
 			BatteryAgent.this.energyStored = 0;

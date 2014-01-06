@@ -157,7 +157,7 @@ public class PropulsionEngineAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			
+
 			ArrayList<Proposal> best = new ArrayList<Proposal>();
 
 			ArrayList<Proposal> proposalList = (ArrayList<Proposal>)call.getInputValues()[0];	
@@ -213,7 +213,7 @@ public class PropulsionEngineAgent extends Agent {
 		
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			
+
 			// calculate The Power from the server values
 			PropulsionEngineAgent.this.electricMotor.calculatePowerFromAngularVelocityAndTorque(PropulsionEngineAgent.this.car.getV().getReceiver().getAngularVelocity(), PropulsionEngineAgent.this.car.getV().getReceiver().getTorque());
 			Request request = new Request(PropulsionEngineAgent.this.electricMotor.getCurrentPower(), Request.Priority.VERY_HIGH, PropulsionEngineAgent.this.car.getPosition());
@@ -243,8 +243,9 @@ public class PropulsionEngineAgent extends Agent {
 	            PropulsionEngineAgent.this.car.getV().getSender().setTorque(PropulsionEngineAgent.this.electricMotor.getCurrentPower()/PropulsionEngineAgent.this.electricMotor.getAngularVelocity());
 	        else
 	        	PropulsionEngineAgent.this.car.getV().getSender().setTorque(0.0);
+
+			System.out.println(PropulsionEngineAgent.this.getName()+" : "+PropulsionEngineAgent.this.getTorqueProvided());			
 			
-			System.out.println(PropulsionEngineAgent.this.getName()+" : "+PropulsionEngineAgent.this.getTorqueProvided());
 		}
 	}
 }

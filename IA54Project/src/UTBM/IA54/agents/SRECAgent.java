@@ -119,9 +119,7 @@ public class SRECAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			
-			// TODO Behavior done without real object
-			
+
 			Request request = (Request)call.getInputValues()[0];
 			double v = request.getElectricEnergyRequest();
 			if(v > SRECAgent.this.energyProvided)
@@ -210,8 +208,7 @@ public class SRECAgent extends Agent {
 
 		@Override
 		public void call(CapacityContext call) throws Exception {
-			// TODO Behavior done without real object
-			
+
 			Proposal p = (Proposal)call.getInputValues()[0];
 			double v = SRECAgent.this.getEnergyProvided() - p.getElectricEnergyProposal();
 			

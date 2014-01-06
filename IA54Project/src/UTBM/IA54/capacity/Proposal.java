@@ -48,18 +48,34 @@ public class Proposal {
 	/*************************************/
 	/********* Getter and Setter *********/
 	/*************************************/
+	/**
+	 * 
+	 * @param provider
+	 */
 	public void setProvider(RoleAddress provider) {
 		this.provider = provider;
 	}
 
+	/**
+	 * 
+	 * @return double
+	 */
 	public double getElectricEnergyProposal() {
 		return this.electricEnergyProposal;
 	}
 
+	/**
+	 * 
+	 * @return RoleAddress
+	 */
 	public RoleAddress getProvider() {
 		return this.provider;
 	}
 	
+	/**
+	 * 
+	 * @return Request
+	 */
 	public Request getRequest() {
 		return this.request;
 	}
